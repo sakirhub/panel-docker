@@ -11,6 +11,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  await app.listen(8080);
+  await app.listen(8000);
 }
 bootstrap().then(() => console.log('Gateway is running'));
