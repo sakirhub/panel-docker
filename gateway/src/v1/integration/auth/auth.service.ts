@@ -10,7 +10,7 @@ export class AuthService {
         .client()
         .auth.signInWithPassword({ email: app_key, password: app_secret });
       if (error) {
-        return new BadRequestException(error.message).getResponse();
+        throw new BadRequestException(error.message).getResponse();
       }
 
       const client: any = (await this.supabaseService.getServiceRole()) as any;
@@ -20,10 +20,10 @@ export class AuthService {
         .eq('id', data.user.id)
         .single();
       if (profileError) {
-        return new BadRequestException(profileError.message).getResponse();
+        throw new BadRequestException(profileError.message).getResponse();
       }
       if (profile.status !== 'active') {
-        return new BadRequestException(
+        throw new BadRequestException(
           'Your account is not active! Please contact the administrator.',
         ).getResponse();
       }
@@ -36,7 +36,7 @@ export class AuthService {
         expires: new Date(data.session.expires_at * 1000).toISOString(),
       };
     } catch (error) {
-      return new BadRequestException(error.message).getResponse();
+      throw new BadRequestException(error.message).getResponse();
     }
   }
 
