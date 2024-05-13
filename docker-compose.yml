@@ -1,0 +1,31 @@
+version: '3.7'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+  gateway:
+    build:
+        context: ./gateway
+        dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+    volumes:
+      - ./gateway:/app
+      - ./gateway/node_modules:/app/node_modules
+  log-service:
+    build:
+      context: ./log-service
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+    volumes:
+      - ./log-service:/app
+      - ./log-service/node_modules:/app/node_modules
