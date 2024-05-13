@@ -44,7 +44,7 @@ export class LoggingInterceptor implements NestInterceptor {
         const logMessage = {
           type: 'http',
           data: {
-            ip,
+            ip: headers['x-real-ip'] || ip,
             headers,
             method,
             url,
@@ -69,7 +69,7 @@ export class LoggingInterceptor implements NestInterceptor {
         const errorLogMessage = {
           type: 'http_error',
           data: {
-            ip,
+            ip: headers['x-real-ip'] || ip,
             headers,
             method,
             url,
