@@ -11,7 +11,6 @@ COPY . .
 
 RUN nest build
 
-EXPOSE 8080
-
+EXPOSE 8000
 
 CMD [ "npm", "run", "start:dev" ]
