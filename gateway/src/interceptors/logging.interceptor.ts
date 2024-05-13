@@ -4,8 +4,8 @@ import {
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import {
   ClientProxy,
   ClientProxyFactory,
@@ -34,6 +34,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const res = context.switchToHttp().getResponse();
     const { method, url, ip, headers, user } = req;
     const sensitiveResponseUrls = ['/v1/integration/auth', '/supervisor/logs'];
+
     return next.handle().pipe(
       tap((data) => {
         const responseTime = Date.now() - now;
@@ -56,13 +57,32 @@ export class LoggingInterceptor implements NestInterceptor {
                   }
                 : req.body,
             resBody: sensitiveResponseUrls.includes(url) ? {} : data,
-
             responseTime: `${responseTime}ms`,
             responseSize: `${contentLength} bytes`,
             _user,
           },
         };
         this.client.send('log_message', logMessage).subscribe();
+      }),
+      catchError((error) => {
+        const responseTime = Date.now() - now;
+        const errorLogMessage = {
+          type: 'http_error',
+          data: {
+            ip,
+            headers,
+            method,
+            url,
+            reqBody: req.body,
+            resBody: res.statusCode === 500 ? {} : error,
+            statusCode: error.statusCode || 500,
+            errorMessage: error.message,
+            responseTime: `${responseTime}ms`,
+            _user: user ? user.session : 'Anonymous',
+          },
+        };
+        this.client.send('log_message', errorLogMessage).subscribe();
+        return throwError(() => error);
       }),
     );
   }
