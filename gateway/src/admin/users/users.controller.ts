@@ -31,4 +31,9 @@ export class UsersController {
   async removeMfa(@Body() removeMfaUserDto: RemoveMfaUserDto) {
     return this.usersService.removeMfa(removeMfaUserDto);
   }
+
+  @Get('me')
+  async me() {
+    return this.usersService.me();
+  }
 }

@@ -16,8 +16,14 @@ export class UsersService {
     const client = await this.supabaseService.getServiceRole();
     const profile = client
       .from('profiles')
-      .select('*, role(name, description)')
-      .limit(queryParams?.limit || 20);
+      .select(
+        '*, role(name, description), team(name), organization(name), creator(display_name)',
+      )
+      .limit(queryParams?.limit || 20)
+      .order('created_at', { ascending: false })
+      .neq('id', role.data.id)
+      .neq('role', 'fa90ce6e-67d7-4863-99a6-3e281caa0b1a');
+
     if (queryParams?.page) {
       profile.range(
         (queryParams.page - 1) * (queryParams.limit || 20),
@@ -59,10 +65,16 @@ export class UsersService {
       meta: {
         data_count: countData.length,
         total_page,
-        current_page: queryParams?.page || 1,
-        limit: queryParams?.limit || 20,
-        prev_page: queryParams?.page > 1 ? queryParams.page - 1 : null,
-        next_page: queryParams?.page < total_page ? queryParams.page + 1 : null,
+        current_page: Number(queryParams?.page - 1),
+        limit: Number(queryParams?.limit) || 20,
+        prev_page:
+          Number(queryParams?.page - 1) >= 1
+            ? Number(queryParams.page - 1) - 1
+            : null,
+        next_page:
+          Number(queryParams?.page - 1) < Number(total_page)
+            ? Number(queryParams.page - 1) + 1
+            : null,
       },
     };
   }
@@ -82,7 +94,6 @@ export class UsersService {
       creator: null,
       status: 'active',
     };
-
     switch (role.role) {
       case 'supervisor':
         insertData.role = createUserDto.role;
@@ -307,5 +318,13 @@ export class UsersService {
       },
     });
     return { data: 'MFA removed successfully' };
+  }
+
+  async me() {
+    const role = await this.supabaseService.getUserRole();
+    return {
+      user: role.data,
+      role: role.role,
+    };
   }
 }

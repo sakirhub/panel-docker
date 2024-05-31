@@ -33,7 +33,10 @@ export class LoggingInterceptor implements NestInterceptor {
     const req = context.switchToHttp().getRequest();
     const res = context.switchToHttp().getResponse();
     const { method, url, ip, headers, user } = req;
-    const sensitiveResponseUrls = ['/v1/integration/auth', '/supervisor/logs'];
+    const sensitiveResponseUrls = [
+      '/v1/integration/deposit/bank-transfer',
+      '/v1/integration/deposit/papara',
+    ];
 
     return next.handle().pipe(
       tap((data) => {
@@ -56,7 +59,11 @@ export class LoggingInterceptor implements NestInterceptor {
                     app_secret: '*********',
                   }
                 : req.body,
-            resBody: sensitiveResponseUrls.includes(url) ? {} : data,
+            resBody: sensitiveResponseUrls.includes(url)
+              ? method == 'POST'
+                ? data
+                : {}
+              : {},
             responseTime: `${responseTime}ms`,
             responseSize: `${contentLength} bytes`,
             _user,
@@ -74,7 +81,7 @@ export class LoggingInterceptor implements NestInterceptor {
             method,
             url,
             reqBody: req.body,
-            resBody: res.statusCode === 500 ? {} : error,
+            resBody: res.body,
             statusCode: error.statusCode || 500,
             errorMessage: error.message,
             responseTime: `${responseTime}ms`,

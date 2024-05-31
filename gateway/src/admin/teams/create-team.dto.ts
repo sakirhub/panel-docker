@@ -1,12 +1,10 @@
-import { IsArray, IsNumber, IsObject, IsString } from 'class-validator';
+import { IsObject, IsString } from 'class-validator';
 
 export class CreateTeamDto {
   @IsString()
   name: string;
-  @IsNumber()
-  daily_limit: number;
-  @IsArray()
-  organizations: any;
+  @IsString()
+  daily_limit: string;
   @IsObject()
   definitions: any;
 }

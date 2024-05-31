@@ -1,6 +1,6 @@
 import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
 import { StatusService } from './status.service';
-@Controller('/v1/integration/deposit/papara')
+@Controller('/v1/integration/deposit/status')
 export class StatusController {
   constructor(private readonly statusService: StatusService) {}
   @Get('/:id')

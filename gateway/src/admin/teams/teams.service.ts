@@ -6,6 +6,7 @@ import {
 import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateTeamDto } from './create-team.dto';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
+import { UpdateTeamDto } from './update-team.dto';
 @Injectable()
 export class TeamsService {
   constructor(private readonly supabaseService: SupabaseService) {}
@@ -20,7 +21,7 @@ export class TeamsService {
     }
     const teams = client
       .from('teams')
-      .select('*')
+      .select('*, creator(display_name)')
       .order('created_at', { ascending: true })
       .limit(queryParams?.limit || 20);
 
@@ -52,10 +53,16 @@ export class TeamsService {
       meta: {
         data_count: countData.length,
         total_page,
-        current_page: queryParams?.page || 1,
-        limit: queryParams?.limit || 20,
-        prev_page: queryParams?.page > 1 ? queryParams.page - 1 : null,
-        next_page: queryParams?.page < total_page ? queryParams.page + 1 : null,
+        current_page: Number(queryParams?.page - 1),
+        limit: Number(queryParams?.limit) || 20,
+        prev_page:
+          Number(queryParams?.page - 1) >= 1
+            ? Number(queryParams.page - 1) - 1
+            : null,
+        next_page:
+          Number(queryParams?.page - 1) < Number(total_page)
+            ? Number(queryParams.page - 1) + 1
+            : null,
       },
     };
   }
@@ -87,6 +94,41 @@ export class TeamsService {
       data: {
         action: 'create',
         description: `${data.name} takımı ${role.data.name} tarafından oluşturuldu.`,
+        team: data.id,
+        creator: role.data.id,
+      },
+    });
+    return data;
+  }
+
+  async updateTeam(updateTeamDto: UpdateTeamDto) {
+    const loggingInterceptor = new LoggingInterceptor();
+    const role = await this.supabaseService.getUserRole();
+    const client = await this.supabaseService.getServiceRole();
+    if (role.role !== 'supervisor') {
+      return new ForbiddenException(
+        'You are not authorized to access this resource',
+      ).getResponse();
+    }
+    const updateData = {
+      ...updateTeamDto,
+      status: 'active',
+      creator: role.data.id,
+    };
+    const { data, error } = await client
+      .from('teams')
+      .update(updateData)
+      .eq('id', updateTeamDto.id)
+      .select('*')
+      .single();
+    if (error) {
+      return new InternalServerErrorException(error.message).getResponse();
+    }
+    loggingInterceptor.sendLog({
+      type: 'team',
+      data: {
+        action: 'update',
+        description: `${data.name} takımı ${role.data.name} tarafından güncellendi.`,
         team: data.id,
         creator: role.data.id,
       },

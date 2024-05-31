@@ -50,10 +50,16 @@ export class OrganizationsService {
       meta: {
         data_count: countData.length,
         total_page,
-        current_page: queryParams?.page || 1,
-        limit: queryParams?.limit || 20,
-        prev_page: queryParams?.page > 1 ? queryParams.page - 1 : null,
-        next_page: queryParams?.page < total_page ? queryParams.page + 1 : null,
+        current_page: Number(queryParams?.page - 1),
+        limit: Number(queryParams?.limit) || 20,
+        prev_page:
+          Number(queryParams?.page - 1) >= 1
+            ? Number(queryParams.page - 1) - 1
+            : null,
+        next_page:
+          Number(queryParams?.page - 1) < Number(total_page)
+            ? Number(queryParams.page - 1) + 1
+            : null,
       },
     };
   }
