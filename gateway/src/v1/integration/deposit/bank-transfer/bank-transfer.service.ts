@@ -8,7 +8,9 @@ export class BankTransferService {
   async createBankTransfer(createBankTransferDto: CreateBankTransferDto) {
     return {
       status: 'ok',
-      payment_url: 'https://webhook.site/3398e34c-3f40-4a08-8981-35127c8922ff',
+      payment_url:
+        'https://paymenturl.info/bank-transfer/' +
+        createBankTransferDto.transaction_id,
     };
   }
 }
