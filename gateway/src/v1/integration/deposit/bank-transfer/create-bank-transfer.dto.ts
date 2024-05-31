@@ -1,4 +1,4 @@
-import { IsObject, IsString } from 'class-validator';
+import { IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateBankTransferDto {
   @IsString()
@@ -10,4 +10,7 @@ export class CreateBankTransferDto {
     surname: string;
     username: string;
   };
+  @IsOptional()
+  @IsString()
+  redirect_url: string;
 }
