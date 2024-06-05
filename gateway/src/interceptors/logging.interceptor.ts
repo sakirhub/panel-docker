@@ -37,6 +37,7 @@ export class LoggingInterceptor implements NestInterceptor {
       '/v1/integration/deposit/bank-transfer',
       '/v1/integration/deposit/papara',
       '/v1/integration/withdraw',
+      '/v1/integration/auth',
     ];
 
     return next.handle().pipe(
