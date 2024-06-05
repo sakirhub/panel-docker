@@ -234,7 +234,6 @@ export class WithdrawsService {
       currency: 'TRY',
       status: 'unsuccessful',
     };
-
     const callbackReq = await fetch(callBackUrl, {
       method: 'POST',
       headers: {

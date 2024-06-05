@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
 @Injectable()
@@ -145,9 +145,11 @@ export class InvestmentsService {
       .eq('transaction_id', id)
       .eq('status', 'pending')
       .single();
+
     if (investmentError) {
-      return investmentError;
+      return new BadRequestException(investmentError.message).getResponse();
     }
+
     const callBackUrl = investmentData.organization.definitions.callback_url;
     const { error: updateInvestmentError } = await client
       .from('investments')
@@ -172,32 +174,53 @@ export class InvestmentsService {
       status: 'successful',
     };
 
-    const callbackReq = await fetch(callBackUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(callBackData),
-    });
-    const callbackRes = await callbackReq.json();
-    loggingInterceptor.sendLog({
-      type: 'investment',
-      data: {
-        action: 'approve',
-        reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
-        investment: investmentData.id,
-        creator: role.data.id,
-      },
-    });
-    loggingInterceptor.sendLog({
-      type: 'callback',
-      data: {
-        action: 'send',
-        reqBody: callBackData,
-        resBody: callbackRes,
-        creator: role.data.id,
-      },
-    });
+    try {
+      const callbackReq = await fetch(callBackUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(callBackData),
+      });
+      const callbackRes = await callbackReq.json();
+      loggingInterceptor.sendLog({
+        type: 'investment',
+        data: {
+          action: 'approve',
+          reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
+          investment: investmentData.id,
+          creator: role.data.id,
+        },
+      });
+      loggingInterceptor.sendLog({
+        type: 'callback',
+        data: {
+          action: 'send',
+          reqBody: callBackData,
+          resBody: callbackRes,
+          creator: role.data.id,
+        },
+      });
+    } catch (e) {
+      loggingInterceptor.sendLog({
+        type: 'investment',
+        data: {
+          action: 'approve',
+          reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
+          investment: investmentData.id,
+          creator: role.data.id,
+        },
+      });
+      loggingInterceptor.sendLog({
+        type: 'callback',
+        data: {
+          action: 'send',
+          reqBody: callBackData,
+          resBody: e,
+          creator: role.data.id,
+        },
+      });
+    }
     return {
       status: 'ok',
       message: 'Yatırım başarıyla onaylandı',
