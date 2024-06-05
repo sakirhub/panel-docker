@@ -141,7 +141,7 @@ export class InvestmentsService {
 
     const { data: investmentData, error: investmentError } = await client
       .from('investments')
-      .select('*, organization(*), investor(*)')
+      .select('*, organization(*), investor(*), team(*)')
       .eq('transaction_id', id)
       .eq('status', 'pending')
       .single();
@@ -150,12 +150,28 @@ export class InvestmentsService {
       return new BadRequestException(investmentError.message).getResponse();
     }
 
+    const team_commission = investmentData.team.definitions.commission;
+    const organization_commission =
+      investmentData.organization.definitions.commission;
+    const total_org_commission =
+      Number(organization_commission) - Number(team_commission);
+    const total_team_commission = Number(team_commission);
+    const total_investment = Number(amount);
+
+    const team_commission_amount =
+      (total_team_commission / 100) * total_investment;
+
+    const organization_commission_amount =
+      (total_org_commission / 100) * total_investment;
+
     const callBackUrl = investmentData.organization.definitions.callback_url;
     const { error: updateInvestmentError } = await client
       .from('investments')
       .update({
         status: 'approved',
         amount,
+        organization_commission: organization_commission_amount,
+        team_commission: team_commission_amount,
         transactor_by: role.data.id,
       })
       .eq('transaction_id', id);
