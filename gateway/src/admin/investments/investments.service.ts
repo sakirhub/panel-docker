@@ -173,6 +173,7 @@ export class InvestmentsService {
         organization_commission: organization_commission_amount,
         team_commission: team_commission_amount,
         transactor_by: role.data.id,
+        accepted_at: new Date(),
       })
       .eq('transaction_id', id);
     if (updateInvestmentError) {
