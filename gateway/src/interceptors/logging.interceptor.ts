@@ -36,6 +36,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const sensitiveResponseUrls = [
       '/v1/integration/deposit/bank-transfer',
       '/v1/integration/deposit/papara',
+      '/v1/integration/withdraw',
     ];
 
     return next.handle().pipe(
@@ -69,7 +70,9 @@ export class LoggingInterceptor implements NestInterceptor {
             _user,
           },
         };
-        this.client.send('log_message', logMessage).subscribe();
+        if (sensitiveResponseUrls.includes(url)) {
+          this.client.send('log_message', logMessage).subscribe();
+        }
       }),
       catchError((error) => {
         const responseTime = Date.now() - now;
