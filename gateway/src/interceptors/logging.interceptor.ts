@@ -35,6 +35,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const { method, url, ip, headers, user } = req;
     const sensitiveResponseUrls = [
       '/v1/integration/deposit/bank-transfer',
+      '/v1/integration/deposit/bank-transfer/havale',
       '/v1/integration/deposit/papara',
       '/v1/integration/withdraw',
       '/v1/integration/auth',

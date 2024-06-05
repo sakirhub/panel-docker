@@ -88,9 +88,38 @@ export class BankTransferService {
     }
 
     if (!randomBankAccount) {
-      return new BadRequestException(
-        'Uygun banka hesabı bulunamadı',
-      ).getResponse();
+      for (let i = 0; i < organizationTeams.length; i++) {
+        const randomTeam =
+          organizationTeams[
+            Math.floor(Math.random() * organizationTeams.length)
+          ];
+        const { data: bankAccounts, error: bankAccountsError } = await client
+          .from('bank_accounts')
+          .select(
+            'id, name, account_number, team, payment_method(id, name, logo)',
+          )
+          .eq('status', 'active')
+          .neq('payment_method', '279fbfdb-34c8-41e5-9d9b-54137ad20f8b')
+          .neq('payment_method', 'aad2e73d-0a8a-4de4-9841-980567cbf34f')
+          .lte('min_limit', createBankTransferDto.amount)
+          .gte('max_limit', createBankTransferDto.amount)
+          .eq('team', randomTeam.team.id);
+        if (bankAccountsError) {
+          console.error('Bir hata oluştu:', bankAccountsError);
+          continue;
+        }
+
+        if (bankAccounts.length > 0) {
+          randomBankAccount =
+            bankAccounts[Math.floor(Math.random() * bankAccounts.length)];
+          break;
+        }
+      }
+      if (!randomBankAccount) {
+        return new BadRequestException(
+          'Uygun banka hesabı bulunamadı',
+        ).getResponse();
+      }
     }
     const investment: any = {
       investor: investor,
@@ -98,7 +127,6 @@ export class BankTransferService {
       amount: createBankTransferDto.amount,
       currency: 'TRY',
       status: 'pending',
-      type: 'havale',
       team: randomBankAccount.team.id,
       creator: role.data.id,
       organization: role.data.organization.id,

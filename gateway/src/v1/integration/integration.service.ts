@@ -82,4 +82,18 @@ export class IntegrationService {
       redirect_url: investmentData.redirect_url,
     };
   }
+
+  async getPaymentMethods() {
+    const client: any = await this.supabaseService.getServiceRole();
+    const paymentMethods = client
+      .from('payment_methods')
+      .select('id, name, logo')
+      .neq('id', '279fbfdb-34c8-41e5-9d9b-54137ad20f8b')
+      .neq('id', 'aad2e73d-0a8a-4de4-9841-980567cbf34f');
+    const { data, error } = await paymentMethods;
+    if (error) {
+      return new BadRequestException(error.message).getResponse();
+    }
+    return data;
+  }
 }
