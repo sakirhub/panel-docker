@@ -37,7 +37,7 @@ export class BankAccountsService {
     }
     const count = client.from('bank_accounts').select('id');
     if (role.role !== 'supervisor') {
-      count.eq('team', role.data.team);
+      count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
     const total_page = Math.ceil(
