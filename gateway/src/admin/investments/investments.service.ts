@@ -43,7 +43,7 @@ export class InvestmentsService {
       .select('id')
       .neq('status', 'pending');
     if (role.role !== 'supervisor') {
-      count.eq('team', role.data.team);
+      count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
     const total_page = Math.ceil(
@@ -107,7 +107,7 @@ export class InvestmentsService {
       .select('id')
       .eq('status', 'pending');
     if (role.role !== 'supervisor') {
-      count.eq('team', role.data.team);
+      count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
     const total_page = Math.ceil(
