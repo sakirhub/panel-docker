@@ -71,7 +71,7 @@ export class BankAccountsService {
       creator: role.data.id,
     };
     if (role.role !== 'supervisor') {
-      insertData.team = role.data.team;
+      insertData.team = role.data.team.id;
     }
     const { data, error } = await client
       .from('bank_accounts')
