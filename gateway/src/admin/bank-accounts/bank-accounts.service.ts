@@ -16,7 +16,7 @@ export class BankAccountsService {
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
     if (role.role !== 'supervisor') {
-      bank_accounts.eq('team', role.data.team);
+      bank_accounts.eq('team', role.data.team.id);
     }
     if (queryParams?.page) {
       bank_accounts.range(
