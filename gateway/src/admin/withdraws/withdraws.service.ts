@@ -247,7 +247,7 @@ export class WithdrawsService {
       type: 'withdraw',
       data: {
         action: 'reject',
-        reqBody: `Yatırım reddedildi. Yatırımcı: ${investmentData.investor.name}, Miktar: ${investmentData.amount}`,
+        reqBody: `Çekim talebi reddedildi. Yatırımcı: ${investmentData.investor.name}, Miktar: ${investmentData.amount}`,
         investment: investmentData.id,
         creator: role.data.id,
       },
