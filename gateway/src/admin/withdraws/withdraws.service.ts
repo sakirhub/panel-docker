@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
 @Injectable()
-export class InvestmentsService {
+export class WithdrawsService {
   constructor(private readonly supabaseService: SupabaseService) {}
 
   async getPendingInvestments(queryParams: any) {
@@ -10,9 +10,9 @@ export class InvestmentsService {
     const role = await this.supabaseService.getUserRole();
 
     const investments = client
-      .from('investments')
+      .from('withdraws')
       .select(
-        '*, organization(name), investor(id,name, full_name, organization_user_id), team(name), payment_method(name, logo), bank_account(name, account_number)',
+        '*, organization(name), investor(id,name, full_name, organization_user_id), team(name)',
       )
       .eq('status', 'pending');
 
@@ -37,10 +37,7 @@ export class InvestmentsService {
       return error;
     }
 
-    const count = client
-      .from('investments')
-      .select('id')
-      .eq('status', 'pending');
+    const count = client.from('withdraws').select('id').eq('status', 'pending');
     if (role.role !== 'supervisor') {
       count.eq('team', role.data.team);
     }
@@ -75,7 +72,7 @@ export class InvestmentsService {
     const { id, amount, type } = body;
 
     const { data: investmentData, error: investmentError } = await client
-      .from('investments')
+      .from('withdraws')
       .select('*, organization(*), investor(*)')
       .eq('transaction_id', id)
       .eq('status', 'pending')
@@ -85,10 +82,9 @@ export class InvestmentsService {
     }
     const callBackUrl = investmentData.organization.definitions.callback_url;
     const { error: updateInvestmentError } = await client
-      .from('investments')
+      .from('withdraws')
       .update({
         status: 'approved',
-        amount,
         transactor_by: role.data.id,
       })
       .eq('transaction_id', id);
@@ -97,12 +93,12 @@ export class InvestmentsService {
     }
 
     const callBackData = {
-      service: 'deposit',
+      service: 'withdraw',
       method: type,
       transaction_id: id,
       user_id: investmentData.investor.organization_user_id,
       username: investmentData.investor.username,
-      amount,
+      amount: investmentData.amount,
       currency: 'TRY',
       status: 'successful',
     };
@@ -119,7 +115,7 @@ export class InvestmentsService {
       type: 'investment',
       data: {
         action: 'approve',
-        reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
+        reqBody: `Çekim onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
         investment: investmentData.id,
         creator: role.data.id,
       },
@@ -135,7 +131,7 @@ export class InvestmentsService {
     });
     return {
       status: 'ok',
-      message: 'Yatırım başarıyla onaylandı',
+      message: 'Çekim başarıyla onaylandı',
     };
   }
 
@@ -146,7 +142,7 @@ export class InvestmentsService {
     const { id, type } = body;
 
     const { data: investmentData, error: investmentError } = await client
-      .from('investments')
+      .from('withdraws')
       .select('*, organization(*), investor(*)')
       .eq('transaction_id', id)
       .eq('status', 'pending')
@@ -156,7 +152,7 @@ export class InvestmentsService {
     }
     const callBackUrl = investmentData.organization.definitions.callback_url;
     const { error: updateInvestmentError } = await client
-      .from('investments')
+      .from('withdraws')
       .update({
         status: 'rejected',
         transactor_by: role.data.id,
@@ -167,7 +163,7 @@ export class InvestmentsService {
     }
 
     const callBackData = {
-      service: 'deposit',
+      service: 'withdraw',
       method: type,
       transaction_id: id,
       user_id: investmentData.investor.organization_user_id,
@@ -186,7 +182,7 @@ export class InvestmentsService {
     });
     const callbackRes = await callbackReq.json();
     loggingInterceptor.sendLog({
-      type: 'investment',
+      type: 'withdraw',
       data: {
         action: 'reject',
         reqBody: `Yatırım reddedildi. Yatırımcı: ${investmentData.investor.name}, Miktar: ${investmentData.amount}`,
@@ -205,7 +201,7 @@ export class InvestmentsService {
     });
     return {
       status: 'ok',
-      message: 'Yatırım başarıyla reddedildi',
+      message: 'Çekim başarıyla reddedildi',
     };
   }
 }
