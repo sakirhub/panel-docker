@@ -41,10 +41,10 @@ export class UsersService {
       case 'supervisor':
         break;
       case 'organization-admin':
-        profile.eq('organization', role.data.organization);
+        profile.eq('organization', role.data.organization.id);
         break;
       case 'team-admin':
-        profile.eq('team', role.data.team);
+        profile.eq('team', role.data.team.id);
         break;
       default:
         return new ForbiddenException(
@@ -102,11 +102,11 @@ export class UsersService {
         break;
       case 'organization-admin':
         insertData.role = 'cfdcb4b2-1a4a-4804-90d1-cd7eae4c9e9a';
-        insertData.organization = role.data.organization;
+        insertData.organization = role.data.organization.id;
         break;
       case 'team-admin':
         insertData.role = '50d7be94-e135-463f-91e8-e5db8a15db79';
-        insertData.team = role.data.team;
+        insertData.team = role.data.team.id;
         break;
       default:
         return new ForbiddenException(

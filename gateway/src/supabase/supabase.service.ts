@@ -21,6 +21,7 @@ export class SupabaseService {
     const supabaseKey = process.env.SUPABASE_KEY;
     this.supabase = createClient(supabaseUrl, supabaseKey);
   }
+
   async getClient() {
     this.clientInstance = createClient(
       process.env.SUPABASE_URL,
@@ -64,7 +65,9 @@ export class SupabaseService {
     const authUser = await client.auth.getUser();
     const { data, error } = await client
       .from('profiles')
-      .select('*, role(name)')
+      .select(
+        '*, role(name), organization(id, name, definitions), team(id, name)',
+      )
       .eq('id', authUser?.data?.user?.id)
       .single();
     if (error) {
@@ -82,5 +85,47 @@ export class SupabaseService {
       process.env.SERVICE_KEY,
     );
     return this.serviceInstance;
+  }
+
+  async checkInvestor(investor: any): Promise<any> {
+    const client: any = await this.getServiceRole();
+    const role = await this.getUserRole();
+    const { data: user, error: userError } = await client
+      .from('investors')
+      .select('id')
+      .eq('organization_user_id', investor.id)
+      .eq('organization', role.data.organization.id);
+    if (userError) {
+      console.error('Bir hata oluştu:', userError);
+      return;
+    }
+    if (user.length > 0) {
+      return user[0].id;
+    }
+    const { data, error } = await client
+      .from('investors')
+      .insert([
+        {
+          name: investor.name,
+          surname: investor.surname,
+          full_name: investor.name + ' ' + investor.surname,
+          username: investor.username || null,
+          organization: role.data.organization.id,
+          organization_user_id: investor.id,
+          metadata: {
+            email: investor.email ? investor.email : null,
+            tc_number: investor.tc_number ? investor.tc_number : null,
+            phone: investor.phone ? investor.phone : null,
+            birth_date: investor.birth_date ? investor.birth_date : null,
+          },
+          creator: role.data.id,
+        },
+      ])
+      .select('id');
+    if (error) {
+      console.error('Bir hata oluştu:', error);
+      return;
+    }
+    return data[0].id;
   }
 }

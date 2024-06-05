@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateBankAccountsDto } from './create-bank-accounts.dto';
-import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
 @Injectable()
 export class BankAccountsService {
   constructor(private readonly supabaseService: SupabaseService) {}

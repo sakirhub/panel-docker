@@ -5,10 +5,12 @@ import { SupabaseService } from '../../supabase/supabase.service';
 import { DepositModule } from './deposit/deposit.module';
 import { WithdrawModule } from './withdraw/withdraw.module';
 import { VerifyModule } from './verify/verify.module';
+import { IntegrationService } from './integration.service';
+import { IntegrationController } from './integration.controller';
 
 @Module({
-  controllers: [AuthController],
-  providers: [SupabaseService, AuthService],
+  controllers: [AuthController, IntegrationController],
+  providers: [SupabaseService, AuthService, IntegrationService],
   imports: [DepositModule, WithdrawModule, VerifyModule],
 })
 export class IntegrationModule {}
