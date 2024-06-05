@@ -1,10 +1,13 @@
-import { IsNotEmpty, IsNumber, IsObject, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateHavaleDto {
-  @IsNotEmpty({
-    message: 'Payment method must not be empty',
-    context: { errorCode: 'payment_method' },
-  })
+  @IsOptional()
   @IsString({
     message: 'Payment method must be a string',
     context: { errorCode: 'payment_method' },
