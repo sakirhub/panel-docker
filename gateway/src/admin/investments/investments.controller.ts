@@ -13,4 +13,9 @@ export class InvestmentsController {
   async approveInvestment(@Body() body: any) {
     return this.investmentsService.approveInvestment(body);
   }
+
+  @Post('reject')
+  async rejectInvestment(@Body() body: any) {
+    return this.investmentsService.rejectInvestment(body);
+  }
 }

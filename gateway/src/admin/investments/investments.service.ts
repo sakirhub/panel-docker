@@ -37,7 +37,10 @@ export class InvestmentsService {
       return error;
     }
 
-    const count = client.from('investments').select('id');
+    const count = client
+      .from('investments')
+      .select('id')
+      .eq('status', 'pending');
     if (role.role !== 'supervisor') {
       count.eq('team', role.data.team);
     }
@@ -81,7 +84,6 @@ export class InvestmentsService {
       return investmentError;
     }
     const callBackUrl = investmentData.organization.definitions.callback_url;
-    console.log(callBackUrl);
     const { error: updateInvestmentError } = await client
       .from('investments')
       .update({
@@ -117,7 +119,7 @@ export class InvestmentsService {
       type: 'investment',
       data: {
         action: 'approve',
-        description: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
+        reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
         investment: investmentData.id,
         creator: role.data.id,
       },
@@ -134,6 +136,76 @@ export class InvestmentsService {
     return {
       status: 'ok',
       message: 'Yatırım başarıyla onaylandı',
+    };
+  }
+
+  async rejectInvestment(body: any) {
+    const loggingInterceptor = new LoggingInterceptor();
+    const client: any = await this.supabaseService.getServiceRole();
+    const role = await this.supabaseService.getUserRole();
+    const { id, type } = body;
+
+    const { data: investmentData, error: investmentError } = await client
+      .from('investments')
+      .select('*, organization(*), investor(*)')
+      .eq('transaction_id', id)
+      .eq('status', 'pending')
+      .single();
+    if (investmentError) {
+      return investmentError;
+    }
+    const callBackUrl = investmentData.organization.definitions.callback_url;
+    const { error: updateInvestmentError } = await client
+      .from('investments')
+      .update({
+        status: 'approved',
+        transactor_by: role.data.id,
+      })
+      .eq('transaction_id', id);
+    if (updateInvestmentError) {
+      return updateInvestmentError;
+    }
+
+    const callBackData = {
+      service: 'deposit',
+      method: type,
+      transaction_id: id,
+      user_id: investmentData.investor.organization_user_id,
+      username: investmentData.investor.username,
+      amount: investmentData.amount,
+      currency: 'TRY',
+      status: 'unsuccessful',
+    };
+
+    const callbackReq = await fetch(callBackUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(callBackData),
+    });
+    const callbackRes = await callbackReq.json();
+    loggingInterceptor.sendLog({
+      type: 'investment',
+      data: {
+        action: 'approve',
+        reqBody: `Yatırım reddedildi. Yatırımcı: ${investmentData.investor.name}, Miktar: ${investmentData.amount}`,
+        investment: investmentData.id,
+        creator: role.data.id,
+      },
+    });
+    loggingInterceptor.sendLog({
+      type: 'callback',
+      data: {
+        action: 'send',
+        reqBody: callBackData,
+        resBody: callbackRes,
+        creator: role.data.id,
+      },
+    });
+    return {
+      status: 'ok',
+      message: 'Yatırım başarıyla reddedildi',
     };
   }
 }
