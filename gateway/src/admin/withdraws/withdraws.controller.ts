@@ -4,6 +4,10 @@ import { WithdrawsService } from './withdraws.service';
 export class WithdrawsController {
   constructor(private readonly investmentsService: WithdrawsService) {}
 
+  @Get('all')
+  async getAllInvestments(@Query() queryParams: string) {
+    return this.investmentsService.getAllInvestments(queryParams);
+  }
   @Get('pending')
   async getPendingInvestments(@Query() queryParams: string) {
     return this.investmentsService.getPendingInvestments(queryParams);
