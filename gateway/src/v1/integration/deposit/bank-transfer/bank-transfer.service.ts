@@ -68,7 +68,7 @@ export class BankTransferService {
       const { data: bankAccounts, error: bankAccountsError } = await client
         .from('bank_accounts')
         .select(
-          'id, name, account_number, team, payment_method(id, name, logo)',
+          'id, name, account_number, team(id),, payment_method(id, name, logo)',
         )
         .eq('status', 'active')
         .eq('payment_method', createBankTransferDto.payment_method)

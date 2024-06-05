@@ -14,7 +14,8 @@ export class InvestmentsService {
       .select(
         '*, organization(name), investor(id,name, full_name, organization_user_id), team(name), payment_method(name, logo), bank_account(name, account_number)',
       )
-      .neq('status', 'pending');
+      .neq('status', 'pending')
+      .order('created_at', { ascending: false });
 
     if (role.role !== 'supervisor') {
       investments.eq('team', role.data.team.id);
@@ -77,7 +78,8 @@ export class InvestmentsService {
       .select(
         '*, organization(name), investor(id,name, full_name, organization_user_id), team(name), payment_method(name, logo), bank_account(name, account_number)',
       )
-      .eq('status', 'pending');
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
 
     if (role.role !== 'supervisor') {
       investments.eq('team', role.data.team.id);
