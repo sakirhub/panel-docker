@@ -101,7 +101,7 @@ export class WithdrawsService {
 
     const count = client.from('withdraws').select('id').eq('status', 'pending');
     if (role.role !== 'supervisor') {
-      count.eq('team', role.data.team);
+      count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
     const total_page = Math.ceil(
@@ -147,6 +147,7 @@ export class WithdrawsService {
       .from('withdraws')
       .update({
         status: 'approved',
+        accepted_at: new Date(),
         transactor_by: role.data.id,
       })
       .eq('transaction_id', id);
