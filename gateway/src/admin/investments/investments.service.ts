@@ -17,7 +17,7 @@ export class InvestmentsService {
       .neq('status', 'pending')
       .order('created_at', { ascending: false });
 
-    if (role.role !== 'supervisor') {
+    if (role.role !== 'supervisor' || role.role !== 'admin') {
       investments.eq('team', role.data.team.id);
     }
     if (queryParams?.page) {
@@ -42,7 +42,7 @@ export class InvestmentsService {
       .from('investments')
       .select('id')
       .neq('status', 'pending');
-    if (role.role !== 'supervisor') {
+    if (role.role !== 'supervisor' || role.role !== 'admin') {
       count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
@@ -81,7 +81,7 @@ export class InvestmentsService {
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
 
-    if (role.role !== 'supervisor') {
+    if (role.role !== 'supervisor' || role.role !== 'admin') {
       investments.eq('team', role.data.team.id);
     }
     if (queryParams?.page) {
@@ -106,7 +106,7 @@ export class InvestmentsService {
       .from('investments')
       .select('id')
       .eq('status', 'pending');
-    if (role.role !== 'supervisor') {
+    if (role.role !== 'supervisor' || role.role !== 'admin') {
       count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
