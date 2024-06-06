@@ -16,7 +16,7 @@ export class WithdrawsService {
       )
       .neq('status', 'pending');
 
-    if (role.role !== 'supervisor' || role.role !== 'admin') {
+    if (role.role !== 'supervisor' && role.role !== 'admin') {
       investments.eq('team', role.data.team.id);
     }
     if (queryParams?.page) {
@@ -41,7 +41,7 @@ export class WithdrawsService {
       .from('withdraws')
       .select('id')
       .neq('status', 'pending');
-    if (role.role !== 'supervisor' || role.role !== 'admin') {
+    if (role.role !== 'supervisor' && role.role !== 'admin') {
       count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
@@ -78,7 +78,7 @@ export class WithdrawsService {
       )
       .eq('status', 'pending');
 
-    if (role.role !== 'supervisor' || role.role !== 'admin') {
+    if (role.role !== 'supervisor' && role.role !== 'admin') {
       investments.eq('team', role.data.team.id);
     }
     if (queryParams?.page) {
@@ -100,7 +100,7 @@ export class WithdrawsService {
     }
 
     const count = client.from('withdraws').select('id').eq('status', 'pending');
-    if (role.role !== 'supervisor' || role.role !== 'admin') {
+    if (role.role !== 'supervisor' && role.role !== 'admin') {
       count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
