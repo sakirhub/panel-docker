@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { InvestmentsService } from './investments.service';
-import { Public } from '../../decorator/public.decorator';
 @Controller('admin/investments')
 export class InvestmentsController {
   constructor(private readonly investmentsService: InvestmentsService) {}

@@ -12,25 +12,38 @@ export class WithdrawsService {
     const investments = client
       .from('withdraws')
       .select(
-        '*, organization(name), investor(id,name, full_name, organization_user_id), team(name)',
+        '*, organization(name), investor!inner(id,name, full_name, organization_user_id), team(name)',
       )
-      .neq('status', 'pending');
+      .neq('status', 'pending')
+      .order('created_at', { ascending: false });
+
+    if (queryParams?.status !== 'all') {
+      investments.eq('status', queryParams.status);
+    }
+
+    if (queryParams?.id !== 'all') {
+      investments.eq('transaction_id', `${queryParams?.id}`);
+    }
+
+    if (queryParams?.investor !== 'all') {
+      investments.ilike('investor.full_name', `%${queryParams?.investor}%`);
+    }
 
     if (role.role !== 'supervisor' && role.role !== 'admin') {
       investments.eq('team', role.data.team.id);
     }
     if (queryParams?.page) {
       investments.range(
-        (queryParams.page - 1) * (queryParams.limit || 20),
-        queryParams.page * (queryParams.limit || 20),
+        (queryParams.page - 1) * (queryParams.limit || 50),
+        queryParams.page * (queryParams.limit || 50),
       );
     } else {
-      investments.range(0, queryParams.limit || 20);
+      investments.range(0, queryParams.limit || 50);
     }
     if (queryParams?.limit) {
       investments.limit(queryParams.limit);
     } else {
-      investments.limit(20);
+      investments.limit(50);
     }
     const { data, error } = await investments;
     if (error) {
@@ -46,7 +59,7 @@ export class WithdrawsService {
     }
     const { data: countData } = await count;
     const total_page = Math.ceil(
-      countData?.length / (queryParams?.limit || 20),
+      countData?.length / (queryParams?.limit || 50),
     );
 
     return {
@@ -55,7 +68,7 @@ export class WithdrawsService {
         data_count: countData.length,
         total_page,
         current_page: Number(queryParams?.page - 1),
-        limit: Number(queryParams?.limit) || 20,
+        limit: Number(queryParams?.limit) || 50,
         prev_page:
           Number(queryParams?.page - 1) >= 1
             ? Number(queryParams.page - 1) - 1
@@ -76,7 +89,8 @@ export class WithdrawsService {
       .select(
         '*, organization(name), investor(id,name, full_name, organization_user_id), team(name)',
       )
-      .eq('status', 'pending');
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
 
     if (role.role !== 'supervisor' && role.role !== 'admin') {
       investments.eq('team', role.data.team.id);
