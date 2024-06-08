@@ -36,9 +36,6 @@ export class TeamsService {
     if (queryParams?.search) {
       teams.ilike('name', `%${queryParams.name}%`);
     }
-    if (queryParams?.status) {
-      teams.eq('status', queryParams.status);
-    }
     const { data, error } = await teams;
     if (error) {
       return new InternalServerErrorException(error.message).getResponse();
