@@ -14,7 +14,11 @@ export class TeamsService {
   async findAll(queryParams: any) {
     const role = await this.supabaseService.getUserRole();
     const client = await this.supabaseService.getServiceRole();
-    if (role.role !== 'supervisor') {
+    if (
+      role.role !== 'supervisor' &&
+      role.role !== 'admin' &&
+      role.role !== 'ekip'
+    ) {
       return new ForbiddenException(
         'You are not authorized to access this resource',
       ).getResponse();

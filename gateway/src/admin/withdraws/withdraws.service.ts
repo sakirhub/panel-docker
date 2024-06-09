@@ -29,7 +29,11 @@ export class WithdrawsService {
       investments.ilike('investor.full_name', `%${queryParams?.investor}%`);
     }
 
-    if (role.role !== 'supervisor' && role.role !== 'admin') {
+    if (
+      role.role !== 'supervisor' &&
+      role.role !== 'admin' &&
+      role.role !== 'ekip'
+    ) {
       investments.eq('team', role.data.team.id);
     }
     if (queryParams?.page) {
@@ -54,7 +58,11 @@ export class WithdrawsService {
       .from('withdraws')
       .select('id')
       .neq('status', 'pending');
-    if (role.role !== 'supervisor' && role.role !== 'admin') {
+    if (
+      role.role !== 'supervisor' &&
+      role.role !== 'admin' &&
+      role.role !== 'ekip'
+    ) {
       count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
@@ -92,7 +100,11 @@ export class WithdrawsService {
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
 
-    if (role.role !== 'supervisor' && role.role !== 'admin') {
+    if (
+      role.role !== 'supervisor' &&
+      role.role !== 'admin' &&
+      role.role !== 'ekip'
+    ) {
       investments.eq('team', role.data.team.id);
     }
     if (queryParams?.page) {
@@ -114,7 +126,11 @@ export class WithdrawsService {
     }
 
     const count = client.from('withdraws').select('id').eq('status', 'pending');
-    if (role.role !== 'supervisor' && role.role !== 'admin') {
+    if (
+      role.role !== 'supervisor' &&
+      role.role !== 'admin' &&
+      role.role !== 'ekip'
+    ) {
       count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;

@@ -15,7 +15,7 @@ export class BankAccountsService {
       .neq('id', '279fbfdb-34c8-41e5-9d9b-54137ad20f8b')
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
-    if (role.role !== 'supervisor') {
+    if (role.role !== 'supervisor' && role.role !== 'ekip') {
       bank_accounts.eq('team', role.data.team.id);
     }
     if (queryParams?.page) {
@@ -36,7 +36,7 @@ export class BankAccountsService {
       return new BadRequestException(error.message).getResponse();
     }
     const count = client.from('bank_accounts').select('id');
-    if (role.role !== 'supervisor') {
+    if (role.role !== 'supervisor' && role.role !== 'ekip') {
       count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;

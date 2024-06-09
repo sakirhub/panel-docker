@@ -13,7 +13,11 @@ export class OrganizationsService {
   constructor(private supabaseService: SupabaseService) {}
   private async checkRole() {
     const role = await this.supabaseService.getUserRole();
-    if (role.role !== 'supervisor') {
+    if (
+      role.role !== 'supervisor' &&
+      role.role !== 'admin' &&
+      role.role !== 'ekip'
+    ) {
       return new BadRequestException(
         'You are not authorized to access this resource',
       ).getResponse();
@@ -81,7 +85,6 @@ export class OrganizationsService {
       .select('*')
       .single();
     if (error) {
-      console.log('Buraya girdi');
       return new BadRequestException(error.message).getResponse();
     }
     const apiUserData = {
