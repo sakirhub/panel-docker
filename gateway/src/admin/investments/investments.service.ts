@@ -31,8 +31,8 @@ export class InvestmentsService {
     }
     if (
       role.role !== 'supervisor' &&
-      role.role !== 'admin' &&
-      role.role !== 'ekip'
+      role.role !== 'ekip' &&
+      role.role !== 'admin'
     ) {
       investments.eq('team', role.data.team.id);
     }
@@ -59,7 +59,11 @@ export class InvestmentsService {
       .from('investments')
       .select('id')
       .neq('status', 'pending');
-    if (role.role !== 'supervisor' && role.role !== 'ekip') {
+    if (
+      role.role !== 'supervisor' &&
+      role.role !== 'ekip' &&
+      role.role !== 'admin'
+    ) {
       count.eq('team', role.data.team.id);
     }
     const { data: countData } = await count;
