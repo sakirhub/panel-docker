@@ -31,6 +31,9 @@ export class BankAccountsService {
     } else {
       bank_accounts.limit(20);
     }
+    if (queryParams?.team) {
+      bank_accounts.eq('team', queryParams.team);
+    }
     const { data, error } = await bank_accounts;
     if (error) {
       return new BadRequestException(error.message).getResponse();
