@@ -1,4 +1,4 @@
-import { IsObject, IsString } from 'class-validator';
+import { IsObject, IsOptional, IsString } from 'class-validator';
 
 export class CreateWithdrawDto {
   @IsString()
@@ -10,7 +10,7 @@ export class CreateWithdrawDto {
   @IsString()
   account_number: string;
   @IsString()
-  amount: string;
+  amount: string | number;
   @IsObject()
   user: {
     id: string;
@@ -18,4 +18,10 @@ export class CreateWithdrawDto {
     surname: string;
     username: string;
   };
+  @IsOptional()
+  success_url: string;
+  @IsOptional()
+  fail_url: string;
+  @IsOptional()
+  currency: string;
 }
