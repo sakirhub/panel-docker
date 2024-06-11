@@ -184,44 +184,47 @@ export class WithdrawsService {
     if (updateInvestmentError) {
       return updateInvestmentError;
     }
+    if (callBackUrl) {
+      const callBackData = {
+        service: 'withdraw',
+        method: type,
+        transaction_id: id,
+        user_id: investmentData.investor.organization_user_id,
+        username: investmentData.investor.username,
+        amount: investmentData.amount,
+        currency: 'TRY',
+        status: 'successful',
+      };
 
-    const callBackData = {
-      service: 'withdraw',
-      method: type,
-      transaction_id: id,
-      user_id: investmentData.investor.organization_user_id,
-      username: investmentData.investor.username,
-      amount: investmentData.amount,
-      currency: 'TRY',
-      status: 'successful',
-    };
+      const callbackReq = await fetch(callBackUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(callBackData),
+      });
+      const callbackRes = await callbackReq.json();
+      loggingInterceptor.sendLog({
+        type: 'callback',
+        data: {
+          action: 'send',
+          reqBody: callBackData,
+          resBody: callbackRes,
+          creator: role.data.id,
+        },
+      });
+    }
 
-    const callbackReq = await fetch(callBackUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(callBackData),
-    });
-    const callbackRes = await callbackReq.json();
     loggingInterceptor.sendLog({
-      type: 'investment',
+      type: 'withdraw',
       data: {
         action: 'approve',
-        reqBody: `Çekim onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
+        reqBody: `Çekim onaylandı. Yatırımcı: ${investmentData.investor.full_name}, Miktar: ${amount}`,
         investment: investmentData.id,
         creator: role.data.id,
       },
     });
-    loggingInterceptor.sendLog({
-      type: 'callback',
-      data: {
-        action: 'send',
-        reqBody: callBackData,
-        resBody: callbackRes,
-        creator: role.data.id,
-      },
-    });
+
     return {
       status: 'ok',
       message: 'Çekim başarıyla onaylandı',
