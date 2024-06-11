@@ -181,7 +181,7 @@ export class WithdrawsService {
         transactor_by: role.data.id,
       })
       .eq('transaction_id', id);
-    if (updateInvestmentError) {
+    if (updateInvestmentError && investmentData.type !== 'manual') {
       return updateInvestmentError;
     }
     if (callBackUrl) {
