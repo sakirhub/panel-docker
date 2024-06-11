@@ -178,6 +178,10 @@ export class InvestmentsService {
       return new BadRequestException(investmentError.message).getResponse();
     }
 
+    if (investmentData.status !== 'pending') {
+      return new BadRequestException('Yatırım zaten onaylanmış').getResponse();
+    }
+
     const team_commission = investmentData.team.definitions.commission;
     const organization_commission =
       investmentData.organization.definitions.commission;
