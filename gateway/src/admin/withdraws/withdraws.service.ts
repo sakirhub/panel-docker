@@ -172,7 +172,6 @@ export class WithdrawsService {
     if (investmentError) {
       return investmentError;
     }
-    const callBackUrl = investmentData.organization.definitions.callback_url;
     const { error: updateInvestmentError } = await client
       .from('withdraws')
       .update({
@@ -184,7 +183,9 @@ export class WithdrawsService {
     if (updateInvestmentError && investmentData.type !== 'manual') {
       return updateInvestmentError;
     }
-    if (callBackUrl) {
+    if (investmentData.type !== 'manual') {
+      const callBackUrl = investmentData.organization.definitions.callback_url;
+
       const callBackData = {
         service: 'withdraw',
         method: type,
