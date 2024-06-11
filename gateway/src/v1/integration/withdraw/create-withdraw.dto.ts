@@ -9,7 +9,6 @@ export class CreateWithdrawDto {
   account_name: string;
   @IsString()
   account_number: string;
-  @IsString()
   amount: string | number;
   @IsObject()
   user: {
