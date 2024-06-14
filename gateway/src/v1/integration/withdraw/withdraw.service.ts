@@ -32,7 +32,11 @@ export class WithdrawService {
     }
     let randomTeam;
     for (let i = 0; i < teams.length; i++) {
-      randomTeam = teams[Math.floor(Math.random() * teams.length)];
+      randomTeam = await teams[Math.floor(Math.random() * teams.length)];
+      if (!randomTeam.team) {
+        i--;
+        continue;
+      }
       if (randomTeam.team.withdraw_status === 'active') {
         break;
       }
@@ -40,7 +44,7 @@ export class WithdrawService {
     if (!randomTeam) {
       return new BadRequestException('Bir hata oluştu').getResponse();
     }
-    withdrawData['team'] = randomTeam.team.id;
+    withdrawData['team'] = await randomTeam.team.id;
     const { error } = await client.from('withdraws').insert([withdrawData]);
     if (error) {
       return new BadRequestException(error).getResponse();

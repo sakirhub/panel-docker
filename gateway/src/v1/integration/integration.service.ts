@@ -32,28 +32,40 @@ export class IntegrationService {
 
     let randomBankAccount;
     for (let i = 0; i < organizationTeams.length; i++) {
-      const randomTeam =
-        organizationTeams[Math.floor(Math.random() * organizationTeams.length)];
-      const { data: bankAccounts, error: bankAccountsError } = await client
-        .from('bank_accounts')
-        .select(
-          'id, name, account_number, team, payment_method(id, name, logo)',
-        )
-        .eq('status', 'active')
-        .neq('payment_method', '279fbfdb-34c8-41e5-9d9b-54137ad20f8b')
-        .neq('payment_method', 'aad2e73d-0a8a-4de4-9841-980567cbf34f')
-        .lte('min_limit', amount)
-        .gte('max_limit', amount)
-        .eq('team', randomTeam.team.id);
-      if (bankAccountsError) {
-        console.error('Bir hata oluştu:', bankAccountsError);
-        continue;
-      }
+      try {
+        const randomTeam =
+          await organizationTeams[
+            Math.floor(Math.random() * organizationTeams.length)
+          ];
+        if (!randomTeam.team) {
+          i--;
+          continue;
+        }
+        const { data: bankAccounts, error: bankAccountsError } = await client
+          .from('bank_accounts')
+          .select(
+            'id, name, account_number, team(id), payment_method(id, name, logo)',
+          )
+          .eq('status', 'active')
+          .neq('payment_method', '279fbfdb-34c8-41e5-9d9b-54137ad20f8b')
+          .neq('payment_method', 'aad2e73d-0a8a-4de4-9841-980567cbf34f')
+          .lte('min_limit', amount)
+          .gte('max_limit', amount)
+          .eq('team', randomTeam.team.id);
+        if (bankAccountsError) {
+          console.log('buraya girdi');
+          console.error('Bir hata oluştu:', bankAccountsError);
+          continue;
+        }
 
-      if (bankAccounts.length > 0) {
-        randomBankAccount =
-          bankAccounts[Math.floor(Math.random() * bankAccounts.length)];
-        break;
+        if (bankAccounts.length > 0) {
+          randomBankAccount =
+            await bankAccounts[Math.floor(Math.random() * bankAccounts.length)];
+          break;
+        }
+      } catch (e) {
+        console.error('Bir hata oluştu:', e);
+        continue;
       }
     }
 
