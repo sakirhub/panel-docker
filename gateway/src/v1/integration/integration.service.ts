@@ -34,6 +34,10 @@ export class IntegrationService {
     for (let i = 0; i < organizationTeams.length; i++) {
       const randomTeam =
         organizationTeams[Math.floor(Math.random() * organizationTeams.length)];
+      if (!randomTeam.team) {
+        i--;
+        continue;
+      }
       const { data: bankAccounts, error: bankAccountsError } = await client
         .from('bank_accounts')
         .select(
