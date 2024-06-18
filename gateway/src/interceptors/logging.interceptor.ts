@@ -20,14 +20,18 @@ export class LoggingInterceptor implements NestInterceptor {
     this.client = ClientProxyFactory.create({
       transport: Transport.RMQ,
       options: {
-        urls: ['amqp://rabbitmq:5672'],
+        urls: [process.env.RABBITMQ_URL || 'amqp://rabbitmq:5672'],
         queue: 'log-queue',
         queueOptions: {
           durable: true,
         },
+        socketOptions: {
+          heartbeatIntervalInSeconds: 30,
+        },
       },
     });
   }
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
     const req = context.switchToHttp().getRequest();
@@ -73,7 +77,9 @@ export class LoggingInterceptor implements NestInterceptor {
           },
         };
         if (sensitiveResponseUrls.includes(url)) {
-          this.client.send('log_message', logMessage).subscribe();
+          this.client.send('log_message', logMessage).subscribe({
+            error: (error) => console.error('Log sending error:', error),
+          });
         }
       }),
       catchError((error) => {
@@ -93,11 +99,14 @@ export class LoggingInterceptor implements NestInterceptor {
             _user: user ? user.session : 'Anonymous',
           },
         };
-        this.client.send('log_message', errorLogMessage).subscribe();
+        this.client.send('log_message', errorLogMessage).subscribe({
+          error: (logError) => console.error('Log sending error:', logError),
+        });
         return throwError(() => error);
       }),
     );
   }
+
   public sendLog(customLogMessage: any): void {
     this.client.send('log_message', customLogMessage).subscribe({
       error: (error) => console.error('Log sending error:', error),

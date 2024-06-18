@@ -236,10 +236,11 @@ export class InvestmentsService {
         type: 'investment',
         data: {
           action: 'approve',
-          reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
+          reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.full_name}, Miktar: ${amount}`,
           investment: investmentData.id,
           creator: role.data.id,
         },
+        transaction_id: id,
       });
       loggingInterceptor.sendLog({
         type: 'callback',
@@ -249,6 +250,7 @@ export class InvestmentsService {
           resBody: callbackRes,
           creator: role.data.id,
         },
+        transaction_id: id,
       });
     } catch (e) {
       loggingInterceptor.sendLog({
@@ -259,6 +261,7 @@ export class InvestmentsService {
           investment: investmentData.id,
           creator: role.data.id,
         },
+        transaction_id: id,
       });
       loggingInterceptor.sendLog({
         type: 'callback',
@@ -268,6 +271,7 @@ export class InvestmentsService {
           resBody: e,
           creator: role.data.id,
         },
+        transaction_id: id,
       });
     }
     return {
@@ -326,10 +330,11 @@ export class InvestmentsService {
       type: 'investment',
       data: {
         action: 'reject',
-        reqBody: `Yatırım reddedildi. Yatırımcı: ${investmentData.investor.name}, Miktar: ${investmentData.amount}`,
+        reqBody: `Yatırım reddedildi. Yatırımcı: ${investmentData.investor.full_name}, Miktar: ${investmentData.amount}`,
         investment: investmentData.id,
         creator: role.data.id,
       },
+      transaction_id: id,
     });
     loggingInterceptor.sendLog({
       type: 'callback',
@@ -339,6 +344,7 @@ export class InvestmentsService {
         resBody: callbackRes,
         creator: role.data.id,
       },
+      transaction_id: id,
     });
     return {
       status: 'ok',
