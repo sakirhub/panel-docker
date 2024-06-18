@@ -69,7 +69,6 @@ export class BankTransferService {
             Math.floor(Math.random() * organizationTeams.length)
           ];
         if (!randomTeam.team) {
-          i--;
           continue;
         }
         const { data: bankAccounts, error: bankAccountsError } = await client
