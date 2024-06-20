@@ -12,6 +12,7 @@ import { SupervisorModule } from './supervisor/supervisor.module';
 import { SupabaseService } from './supabase/supabase.service';
 import { AuthService } from './v1/integration/auth/auth.service';
 import { AdminModule } from './admin/admin.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -24,6 +25,12 @@ import { AdminModule } from './admin/admin.module';
       secret: process.env.JWT_SECRET_KEY,
       signOptions: { expiresIn: '1d' },
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 200,
+      },
+    ]),
     SupabaseModule,
     V1Module,
     SupervisorModule,

@@ -27,6 +27,7 @@
     "@nestjs/microservices": "^10.3.8",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/throttler": "^5.2.0",
     "@nestjs/typeorm": "^10.0.2",
     "@supabase/supabase-js": "^2.43.1",
     "amqp-connection-manager": "^4.1.14",
