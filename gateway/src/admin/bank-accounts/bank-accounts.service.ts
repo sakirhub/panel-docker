@@ -3,6 +3,7 @@ import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateBankAccountsDto } from './create-bank-accounts.dto';
 import OpenAI from 'openai';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
+import * as process from 'node:process';
 
 @Injectable()
 export class BankAccountsService {
@@ -93,7 +94,7 @@ export class BankAccountsService {
     const loggingInterceptor = new LoggingInterceptor();
     const client = await this.supabaseService.getServiceRole();
     const openai = new OpenAI({
-      apiKey: 'sk-proj-SvWYDH5k5UhPDdd6lY3IT3BlbkFJUzt285kIEBzfjB1XfexZ',
+      apiKey: process.env.OPENAI_API_KEY,
     });
 
     const response = await openai.chat.completions.create({
