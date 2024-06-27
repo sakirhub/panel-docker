@@ -16,7 +16,7 @@ export class BankAccountsService {
       .select('*, team(name), payment_method(name), creator(display_name)')
       .neq('id', 'aad2e73d-0a8a-4de4-9841-980567cbf34f')
       .neq('id', '279fbfdb-34c8-41e5-9d9b-54137ad20f8b')
-      .neq('type', 'auto')
+      .is('type', null)
       .is('deleted_at', null)
       .order('created_at', { ascending: false });
     if (role.role !== 'supervisor' && role.role !== 'ekip') {
@@ -364,5 +364,22 @@ export class BankAccountsService {
       status: 'ok',
       message: 'Yatırım başarıyla onaylandı',
     };
+  }
+
+  async loginAccount(body) {
+    const client = await this.supabaseService.getServiceRole();
+    const { data: update, error } = await client
+      .from('bank_accounts')
+      .update({ login: true, status: 'active' })
+      .eq('id', body.id);
+    return 'success';
+  }
+  async logoutAccount(body) {
+    const client = await this.supabaseService.getServiceRole();
+    const { data: update, error } = await client
+      .from('bank_accounts')
+      .update({ login: false, status: 'inactive' })
+      .eq('id', body.id);
+    return 'success';
   }
 }

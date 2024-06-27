@@ -25,4 +25,16 @@ export class BankAccountsController {
   async getAccountDetails(@Body() body: any) {
     return this.bankAccountsService.postAccountDetails(body);
   }
+
+  @Post('login')
+  @Public()
+  async login(@Body() body: any) {
+    return this.bankAccountsService.loginAccount(body);
+  }
+
+  @Post('logout')
+  @Public()
+  async logout(@Body() body: any) {
+    return this.bankAccountsService.logoutAccount(body);
+  }
 }
