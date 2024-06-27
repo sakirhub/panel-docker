@@ -10,6 +10,11 @@ export class BankAccountsController {
     return this.bankAccountsService.findAll(queryParams);
   }
 
+  @Get('auto')
+  async findAllAuto(@Query() queryParams: string) {
+    return this.bankAccountsService.findAllAuto(queryParams);
+  }
+
   @Post()
   async create(@Body() createBankAccountsDto: CreateBankAccountsDto) {
     return this.bankAccountsService.create(createBankAccountsDto);
