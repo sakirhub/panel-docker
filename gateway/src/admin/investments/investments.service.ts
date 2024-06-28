@@ -231,6 +231,26 @@ export class InvestmentsService {
         },
       );
       const fetchCallbackData = await fetchCallback.json();
+      loggingInterceptor.sendLog({
+        type: 'investment',
+        data: {
+          action: 'approve',
+          reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
+          investment: investmentData.id,
+          creator: role.data.id,
+        },
+        transaction_id: id,
+      });
+      loggingInterceptor.sendLog({
+        type: 'callback',
+        data: {
+          action: 'send',
+          reqBody: callBackData,
+          resBody: JSON.stringify(fetchCallbackData),
+          creator: role.data.id,
+        },
+        transaction_id: id,
+      });
     } else {
       const callBackData = {
         service: 'deposit',
