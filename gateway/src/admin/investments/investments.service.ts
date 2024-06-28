@@ -217,7 +217,7 @@ export class InvestmentsService {
       const callBackData = {
         transaction_id: investmentData.transaction_id,
         user_id: investmentData.investor.organization_user_id,
-        status: 'approved',
+        status: 'success',
         amount: amount,
       };
       const fetchCallback = await fetch(
