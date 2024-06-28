@@ -216,7 +216,7 @@ export class InvestmentsService {
     ) {
       const callBackData = {
         transaction_id: investmentData.transaction_id,
-        user_id: investmentData.investor.site_user_id,
+        user_id: investmentData.investor.organization_user_id,
         status: 'approved',
         amount: amount,
       };
