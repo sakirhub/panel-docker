@@ -211,69 +211,91 @@ export class InvestmentsService {
     if (updateInvestmentError) {
       return updateInvestmentError;
     }
+    if (
+      investmentData.organization.id === 'b11d71d1-9c94-416f-86d4-a85940233bf2'
+    ) {
+      const callBackData = {
+        transaction_id: investmentData.transaction_id,
+        user_id: investmentData.investor.site_user_id,
+        status: 'approved',
+        amount: amount,
+      };
+      const fetchCallback = await fetch(
+        investmentData.organization.definitions.callback_url,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(callBackData),
+        },
+      );
+      const fetchCallbackData = await fetchCallback.json();
+    } else {
+      const callBackData = {
+        service: 'deposit',
+        method: type,
+        transaction_id: id,
+        user_id: investmentData.investor.organization_user_id,
+        username: investmentData.investor.username,
+        amount,
+        currency: 'TRY',
+        status: 'successful',
+      };
 
-    const callBackData = {
-      service: 'deposit',
-      method: type,
-      transaction_id: id,
-      user_id: investmentData.investor.organization_user_id,
-      username: investmentData.investor.username,
-      amount,
-      currency: 'TRY',
-      status: 'successful',
-    };
-
-    try {
-      const callbackReq = await fetch(callBackUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(callBackData),
-      });
-      const callbackRes = await callbackReq.json();
-      loggingInterceptor.sendLog({
-        type: 'investment',
-        data: {
-          action: 'approve',
-          reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.full_name}, Miktar: ${amount}`,
-          investment: investmentData.id,
-          creator: role.data.id,
-        },
-        transaction_id: id,
-      });
-      loggingInterceptor.sendLog({
-        type: 'callback',
-        data: {
-          action: 'send',
-          reqBody: callBackData,
-          resBody: callbackRes,
-          creator: role.data.id,
-        },
-        transaction_id: id,
-      });
-    } catch (e) {
-      loggingInterceptor.sendLog({
-        type: 'investment',
-        data: {
-          action: 'approve',
-          reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
-          investment: investmentData.id,
-          creator: role.data.id,
-        },
-        transaction_id: id,
-      });
-      loggingInterceptor.sendLog({
-        type: 'callback',
-        data: {
-          action: 'send',
-          reqBody: callBackData,
-          resBody: e,
-          creator: role.data.id,
-        },
-        transaction_id: id,
-      });
+      try {
+        const callbackReq = await fetch(callBackUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(callBackData),
+        });
+        const callbackRes = await callbackReq.json();
+        loggingInterceptor.sendLog({
+          type: 'investment',
+          data: {
+            action: 'approve',
+            reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.full_name}, Miktar: ${amount}`,
+            investment: investmentData.id,
+            creator: role.data.id,
+          },
+          transaction_id: id,
+        });
+        loggingInterceptor.sendLog({
+          type: 'callback',
+          data: {
+            action: 'send',
+            reqBody: callBackData,
+            resBody: callbackRes,
+            creator: role.data.id,
+          },
+          transaction_id: id,
+        });
+      } catch (e) {
+        loggingInterceptor.sendLog({
+          type: 'investment',
+          data: {
+            action: 'approve',
+            reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentData.investor.name}, Miktar: ${amount}`,
+            investment: investmentData.id,
+            creator: role.data.id,
+          },
+          transaction_id: id,
+        });
+        loggingInterceptor.sendLog({
+          type: 'callback',
+          data: {
+            action: 'send',
+            reqBody: callBackData,
+            resBody: e,
+            creator: role.data.id,
+          },
+          transaction_id: id,
+        });
+      }
     }
+
     return {
       status: 'ok',
       message: 'Yatırım başarıyla onaylandı',
@@ -306,46 +328,68 @@ export class InvestmentsService {
     if (updateInvestmentError) {
       return updateInvestmentError;
     }
+    if (
+      investmentData.organization.id === 'b11d71d1-9c94-416f-86d4-a85940233bf2'
+    ) {
+      const callBackData = {
+        transaction_id: investmentData.transaction_id,
+        user_id: investmentData.investor.site_user_id,
+        status: 'rejected',
+        amount: investmentData.amount,
+      };
+      const fetchCallback = await fetch(
+        investmentData.organization.definitions.callback_url,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(callBackData),
+        },
+      );
+      const fetchCallbackData = await fetchCallback.json();
+    } else {
+      const callBackData = {
+        service: 'deposit',
+        method: type,
+        transaction_id: id,
+        user_id: investmentData.investor.organization_user_id,
+        username: investmentData.investor.username,
+        amount: investmentData.amount,
+        currency: 'TRY',
+        status: 'unsuccessful',
+      };
 
-    const callBackData = {
-      service: 'deposit',
-      method: type,
-      transaction_id: id,
-      user_id: investmentData.investor.organization_user_id,
-      username: investmentData.investor.username,
-      amount: investmentData.amount,
-      currency: 'TRY',
-      status: 'unsuccessful',
-    };
+      const callbackReq = await fetch(callBackUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(callBackData),
+      });
+      const callbackRes = await callbackReq.json();
+      loggingInterceptor.sendLog({
+        type: 'investment',
+        data: {
+          action: 'reject',
+          reqBody: `Yatırım reddedildi. Yatırımcı: ${investmentData.investor.full_name}, Miktar: ${investmentData.amount}`,
+          investment: investmentData.id,
+          creator: role.data.id,
+        },
+        transaction_id: id,
+      });
+      loggingInterceptor.sendLog({
+        type: 'callback',
+        data: {
+          action: 'send',
+          reqBody: callBackData,
+          resBody: callbackRes,
+          creator: role.data.id,
+        },
+        transaction_id: id,
+      });
+    }
 
-    const callbackReq = await fetch(callBackUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(callBackData),
-    });
-    const callbackRes = await callbackReq.json();
-    loggingInterceptor.sendLog({
-      type: 'investment',
-      data: {
-        action: 'reject',
-        reqBody: `Yatırım reddedildi. Yatırımcı: ${investmentData.investor.full_name}, Miktar: ${investmentData.amount}`,
-        investment: investmentData.id,
-        creator: role.data.id,
-      },
-      transaction_id: id,
-    });
-    loggingInterceptor.sendLog({
-      type: 'callback',
-      data: {
-        action: 'send',
-        reqBody: callBackData,
-        resBody: callbackRes,
-        creator: role.data.id,
-      },
-      transaction_id: id,
-    });
     return {
       status: 'ok',
       message: 'Yatırım başarıyla reddedildi',

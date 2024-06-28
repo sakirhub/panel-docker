@@ -92,7 +92,7 @@ export class LoggingInterceptor implements NestInterceptor {
             method,
             url,
             reqBody: req.body,
-            resBody: res.body,
+            resBody: JSON.stringify(error),
             statusCode: error.statusCode || 500,
             errorMessage: error.message,
             responseTime: `${responseTime}ms`,
