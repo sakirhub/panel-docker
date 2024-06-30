@@ -36,6 +36,9 @@ export class InvestmentsService {
     ) {
       investments.eq('team', role.data.team.id);
     }
+    if (role.role == 'admin') {
+      investments.neq('organization', 'b11d71d1-9c94-416f-86d4-a85940233bf2');
+    }
     if (queryParams?.page) {
       investments.range(
         (queryParams.page - 1) * (queryParams.limit || 50),
@@ -107,6 +110,9 @@ export class InvestmentsService {
       role.role !== 'ekip'
     ) {
       investments.eq('team', role.data.team.id);
+    }
+    if (role.role == 'admin') {
+      investments.neq('organization', 'b11d71d1-9c94-416f-86d4-a85940233bf2');
     }
     if (queryParams?.page) {
       investments.range(
