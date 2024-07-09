@@ -310,7 +310,7 @@ export class BankAccountsService {
       username: filteredInvestmentData.investor.username,
       amount: body.amount,
       currency: 'TRY',
-      status: 'successful',
+      status: 'success',
     };
 
     try {
