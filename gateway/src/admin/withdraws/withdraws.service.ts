@@ -209,7 +209,9 @@ export class WithdrawsService {
         },
         body: JSON.stringify(callBackData),
       });
+      console.log(callbackReq);
       const callbackRes = await callbackReq.json();
+      console.log(callbackRes);
       loggingInterceptor.sendLog({
         type: 'callback',
         data: {
