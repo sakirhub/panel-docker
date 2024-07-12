@@ -198,7 +198,7 @@ export class WithdrawsService {
         status: 'successful',
         hash: crypto
           .createHash('sha1')
-          .update(id + '+' + 'wlh61ueieiC09os')
+          .update(investmentData.transaction_id + '+' + 'wlh61ueieiC09os')
           .digest('hex'),
       };
 
@@ -275,7 +275,7 @@ export class WithdrawsService {
       status: 'unsuccessful',
       hash: crypto
         .createHash('sha1')
-        .update(id + '+' + 'wlh61ueieiC09os')
+        .update(investmentData.transaction_id + '+' + 'wlh61ueieiC09os')
         .digest('hex'),
     };
     const callbackReq = await fetch(callBackUrl, {
