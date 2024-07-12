@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
+import crypto from 'crypto';
 @Injectable()
 export class WithdrawsService {
   constructor(private readonly supabaseService: SupabaseService) {}
@@ -195,6 +196,7 @@ export class WithdrawsService {
         amount: investmentData.amount,
         currency: 'TRY',
         status: 'successful',
+        hash: crypto.createHash('sha1').update(id + '+' + 'wlh61ueieiC09os'),
       };
 
       const callbackReq = await fetch(callBackUrl, {
@@ -268,6 +270,7 @@ export class WithdrawsService {
       amount: investmentData.amount,
       currency: 'TRY',
       status: 'unsuccessful',
+      hash: crypto.createHash('sha1').update(id + '+' + 'wlh61ueieiC09os'),
     };
     const callbackReq = await fetch(callBackUrl, {
       method: 'POST',
