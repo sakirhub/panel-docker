@@ -269,7 +269,10 @@ export class InvestmentsService {
         amount,
         currency: 'TRY',
         status: 'successful',
-        hash: crypto.createHash('sha1').update(id + '+' + 'wlh61ueieiC09os'),
+        hash: crypto
+          .createHash('sha1')
+          .update(id + '+' + 'wlh61ueieiC09os')
+          .digest('hex'),
       };
 
       try {
@@ -387,7 +390,10 @@ export class InvestmentsService {
         amount: investmentData.amount,
         currency: 'TRY',
         status: 'unsuccessful',
-        hash: crypto.createHash('sha1').update(id + '+' + 'wlh61ueieiC09os'),
+        hash: crypto
+          .createHash('sha1')
+          .update(id + '+' + 'wlh61ueieiC09os')
+          .digest('hex'),
       };
 
       const callbackReq = await fetch(callBackUrl, {

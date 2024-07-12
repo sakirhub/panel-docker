@@ -196,7 +196,10 @@ export class WithdrawsService {
         amount: investmentData.amount,
         currency: 'TRY',
         status: 'successful',
-        hash: crypto.createHash('sha1').update(id + '+' + 'wlh61ueieiC09os'),
+        hash: crypto
+          .createHash('sha1')
+          .update(id + '+' + 'wlh61ueieiC09os')
+          .digest('hex'),
       };
 
       const callbackReq = await fetch(callBackUrl, {
@@ -270,7 +273,10 @@ export class WithdrawsService {
       amount: investmentData.amount,
       currency: 'TRY',
       status: 'unsuccessful',
-      hash: crypto.createHash('sha1').update(id + '+' + 'wlh61ueieiC09os'),
+      hash: crypto
+        .createHash('sha1')
+        .update(id + '+' + 'wlh61ueieiC09os')
+        .digest('hex'),
     };
     const callbackReq = await fetch(callBackUrl, {
       method: 'POST',
