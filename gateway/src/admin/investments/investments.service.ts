@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
+import * as crypto from 'crypto';
+
 @Injectable()
 export class InvestmentsService {
   constructor(private readonly supabaseService: SupabaseService) {}
@@ -267,6 +269,7 @@ export class InvestmentsService {
         amount,
         currency: 'TRY',
         status: 'successful',
+        hash: crypto.createHash('sha1').update(id + '+' + 'wlh61ueieiC09os'),
       };
 
       try {
@@ -373,7 +376,7 @@ export class InvestmentsService {
           body: JSON.stringify(callBackData),
         },
       );
-      const fetchCallbackData = await fetchCallback.json();
+      await fetchCallback.json();
     } else {
       const callBackData = {
         service: 'deposit',
@@ -384,6 +387,7 @@ export class InvestmentsService {
         amount: investmentData.amount,
         currency: 'TRY',
         status: 'unsuccessful',
+        hash: crypto.createHash('sha1').update(id + '+' + 'wlh61ueieiC09os'),
       };
 
       const callbackReq = await fetch(callBackUrl, {
