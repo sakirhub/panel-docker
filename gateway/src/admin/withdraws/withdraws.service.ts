@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 @Injectable()
 export class WithdrawsService {
   constructor(private readonly supabaseService: SupabaseService) {}
