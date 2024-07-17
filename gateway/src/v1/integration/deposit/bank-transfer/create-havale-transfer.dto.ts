@@ -22,10 +22,7 @@ export class CreateHavaleDto {
     context: { errorCode: 'amount' },
   })
   amount: number;
-  @IsNotEmpty({
-    message: 'Currency must not be empty',
-    context: { errorCode: 'currency' },
-  })
+  @IsOptional()
   @IsString({
     message: 'Currency must be a string',
     context: { errorCode: 'currency' },
@@ -54,19 +51,13 @@ export class CreateHavaleDto {
     context: { errorCode: 'transaction_id' },
   })
   transaction_id: string;
-  @IsNotEmpty({
-    message: 'Success url must not be empty',
-    context: { errorCode: 'success_url' },
-  })
+  @IsOptional()
   @IsString({
     message: 'Success url must be a string',
     context: { errorCode: 'success_url' },
   })
   success_url: string;
-  @IsNotEmpty({
-    message: 'Fail url must not be empty',
-    context: { errorCode: 'fail_url' },
-  })
+  @IsOptional()
   @IsString({
     message: 'Fail url must be a string',
     context: { errorCode: 'fail_url' },

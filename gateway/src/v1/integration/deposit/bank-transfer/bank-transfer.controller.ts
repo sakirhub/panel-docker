@@ -19,4 +19,10 @@ export class BankTransferController {
   async createHavale(@Body() createBankTransferDto: CreateHavaleDto) {
     return this.bankTransferService.createHavale(createBankTransferDto);
   }
+
+  @Post('fast')
+  @HttpCode(HttpStatus.OK)
+  async createFast(@Body() createBankTransferDto: CreateHavaleDto) {
+    return this.bankTransferService.createHavale(createBankTransferDto);
+  }
 }
