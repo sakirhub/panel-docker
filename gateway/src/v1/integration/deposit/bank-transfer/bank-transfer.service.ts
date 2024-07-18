@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { SupabaseService } from '../../../../supabase/supabase.service';
 import { CreateBankTransferDto } from './create-bank-transfer.dto';
 import { CreateHavaleDto } from './create-havale-transfer.dto';
+import { createVerifyDepositDto } from './create-verify.dto';
 @Injectable()
 export class BankTransferService {
   constructor(private readonly supabaseService: SupabaseService) {}
@@ -130,6 +131,101 @@ export class BankTransferService {
       name: investData.bank_account.name,
       account_number: investData.bank_account.account_number,
       logo: investData.payment_method.logo,
+    };
+  }
+
+  async getBankAccounts() {
+    const client: any = await this.supabaseService.getServiceRole();
+    const role = await this.supabaseService.getUserRole();
+
+    const { data: organizationTeams, error: organizationTeamsError } =
+      await client
+        .from('team_organizations')
+        .select('*, team(id, name, status)')
+        .eq('organization', role.data.organization.id)
+        .eq('team.status', 'active');
+    if (organizationTeamsError) {
+      return new BadRequestException(
+        organizationTeamsError.message,
+      ).getResponse();
+    }
+
+    const activeTeams = organizationTeams.map((orgTeam) => orgTeam.team);
+
+    let selectedBankAccounts = [];
+
+    while (activeTeams.length > 0 && selectedBankAccounts.length === 0) {
+      const randomIndex = Math.floor(Math.random() * activeTeams.length);
+      const randomTeam = activeTeams.splice(randomIndex, 1)[0];
+
+      const { data: bankAccounts, error: bankAccountsError } = await client
+        .from('bank_accounts')
+        .select(
+          'id, name, account_number, payment_method(id, name, logo), min_limit, max_limit',
+        )
+        .eq('status', 'active')
+        .neq('payment_method', '279fbfdb-34c8-41e5-9d9b-54137ad20f8b')
+        .neq('payment_method', 'aad2e73d-0a8a-4de4-9841-980567cbf34f')
+        .eq('team', randomTeam.id);
+      if (bankAccountsError) {
+        return new BadRequestException(bankAccountsError.message).getResponse();
+      }
+
+      if (bankAccounts.length > 0) {
+        selectedBankAccounts = bankAccounts
+          .sort(() => 0.5 - Math.random())
+          .slice(0, 3);
+      }
+    }
+
+    if (selectedBankAccounts.length === 0) {
+      return new BadRequestException(
+        'Uygun banka hesabı bulunamadı',
+      ).getResponse();
+    }
+
+    return {
+      accounts: selectedBankAccounts,
+    };
+  }
+
+  async createVerifyDeposit(createVerifyDepositDto: createVerifyDepositDto) {
+    const client: any = await this.supabaseService.getServiceRole();
+    const role = await this.supabaseService.getUserRole();
+    const investor = await this.supabaseService.checkInvestor(
+      createVerifyDepositDto.user,
+    );
+
+    const { data: bankAccount, error: bankAccountError } = await client
+      .from('bank_accounts')
+      .select('team(id), payment_method(id, name, logo)')
+      .eq('id', createVerifyDepositDto.bank_account_id)
+      .single();
+    const investmentData = {
+      status: 'pending',
+      transaction_id: createVerifyDepositDto.transaction_id,
+      organization: role.data.organization.id,
+      amount: createVerifyDepositDto.amount,
+      investor: investor,
+      currency: 'TRY',
+      payment_url:
+        'https://paymenturl.info/bank-transfer/' +
+        createVerifyDepositDto.transaction_id,
+      redirect_url: '',
+      url_confirm: false,
+      organization_commission: role.data.organization.definitions.commission,
+      creator: role.data.id,
+      team: bankAccount.team.id,
+      bank_account: createVerifyDepositDto.bank_account_id,
+      payment_method: bankAccount.payment_method.id,
+    };
+    const { error } = await client.from('investments').insert([investmentData]);
+    if (error) {
+      return new BadRequestException('Bir hata oluştu').getResponse();
+    }
+    return {
+      status: 'success',
+      transaction_id: createVerifyDepositDto.transaction_id,
     };
   }
 }
