@@ -140,7 +140,7 @@ export class BankTransferService {
 
     const { data: organizationTeams, error: organizationTeamsError } =
       await client.rpc('get_teams_with_active_bank_accounts', {
-        organization_id: role.data.organization.id,
+        organization: role.data.organization.id,
       });
 
     if (organizationTeamsError) {
