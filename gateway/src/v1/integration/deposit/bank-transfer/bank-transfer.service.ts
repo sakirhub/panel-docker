@@ -139,13 +139,9 @@ export class BankTransferService {
     const role = await this.supabaseService.getUserRole();
 
     const { data: organizationTeams, error: organizationTeamsError } =
-      await client
-        .from('team_organizations')
-        .select('*, team(id, name, status), bank_accounts(id)')
-        .eq('organization', role.data.organization.id)
-        .eq('team.status', 'active')
-        .neq('bank_accounts.id', null)
-        .join('bank_accounts', 'team.id', 'bank_accounts.team');
+      await client.rpc('get_teams_with_active_bank_accounts', {
+        organization_id: role.data.organization.id,
+      });
 
     if (organizationTeamsError) {
       console.error(
@@ -168,7 +164,11 @@ export class BankTransferService {
       ).getResponse();
     }
 
-    const activeTeams = organizationTeams.map((orgTeam) => orgTeam.team);
+    const activeTeams = organizationTeams.map((orgTeam) => ({
+      id: orgTeam.team_id,
+      name: orgTeam.team_name,
+      status: orgTeam.team_status,
+    }));
 
     console.log('Active Teams:', activeTeams);
 
@@ -239,7 +239,7 @@ export class BankTransferService {
       createVerifyDepositDto.user,
     );
 
-    const { data: bankAccount } = await client
+    const { data: bankAccount, error: bankAccountError } = await client
       .from('bank_accounts')
       .select('team(id), payment_method(id, name, logo)')
       .eq('id', createVerifyDepositDto.bank_account_id)
