@@ -139,9 +139,11 @@ export class BankTransferService {
     const role = await this.supabaseService.getUserRole();
 
     const { data: organizationTeams, error: organizationTeamsError } =
-      await client.rpc('get_teams_with_active_bank_accounts', {
-        organization: role.data.organization.id,
-      });
+      await client
+        .from('team_organizations')
+        .select('*, team(id, name, status)')
+        .eq('organization', role.data.organization.id)
+        .eq('team.status', 'active');
 
     if (organizationTeamsError) {
       console.error(
@@ -149,38 +151,11 @@ export class BankTransferService {
         organizationTeamsError.message,
       );
       return new BadRequestException(
-        organizationTeamsError.message,
+        'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.',
       ).getResponse();
     }
 
-    console.log('Organization Teams:', organizationTeams);
-
-    if (!organizationTeams || organizationTeams.length === 0) {
-      console.warn(
-        'No active teams with active bank accounts found for the organization.',
-      );
-      return new BadRequestException(
-        'No active teams with active bank accounts found for the organization.',
-      ).getResponse();
-    }
-
-    const activeTeams = organizationTeams.map((orgTeam) => ({
-      id: orgTeam.team_id,
-      name: orgTeam.team_name,
-      status: orgTeam.team_status,
-    }));
-
-    console.log('Active Teams:', activeTeams);
-
-    if (activeTeams.length === 0) {
-      console.warn(
-        'No active teams with active bank accounts available after filtering.',
-      );
-      return new BadRequestException(
-        'No active teams with active bank accounts available after filtering.',
-      ).getResponse();
-    }
-
+    const activeTeams = organizationTeams.map((orgTeam) => orgTeam.team);
     let selectedBankAccounts = [];
 
     while (activeTeams.length > 0 && selectedBankAccounts.length === 0) {
@@ -188,11 +163,6 @@ export class BankTransferService {
       const randomTeam = activeTeams.splice(randomIndex, 1)[0];
 
       console.log('Random Team:', randomTeam);
-
-      if (!randomTeam) {
-        console.warn('Selected random team is null or undefined.');
-        continue;
-      }
 
       const { data: bankAccounts, error: bankAccountsError } = await client
         .from('bank_accounts')
