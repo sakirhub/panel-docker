@@ -162,6 +162,9 @@ export class BankTransferService {
       const randomIndex = Math.floor(Math.random() * activeTeams.length);
       const randomTeam = activeTeams.splice(randomIndex, 1)[0];
 
+      if (!randomTeam) {
+        continue;
+      }
       console.log('Random Team:', randomTeam);
 
       const { data: bankAccounts, error: bankAccountsError } = await client
