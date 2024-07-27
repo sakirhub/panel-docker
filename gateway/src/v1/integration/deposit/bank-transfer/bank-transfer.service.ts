@@ -141,9 +141,11 @@ export class BankTransferService {
     const { data: organizationTeams, error: organizationTeamsError } =
       await client
         .from('team_organizations')
-        .select('*, team(id, name, status)')
+        .select('*, team(id, name, status), bank_accounts(id)')
         .eq('organization', role.data.organization.id)
-        .eq('team.status', 'active');
+        .eq('team.status', 'active')
+        .neq('bank_accounts.id', null)
+        .join('bank_accounts', 'team.id', 'bank_accounts.team');
 
     if (organizationTeamsError) {
       console.error(
@@ -151,11 +153,34 @@ export class BankTransferService {
         organizationTeamsError.message,
       );
       return new BadRequestException(
-        'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.',
+        organizationTeamsError.message,
+      ).getResponse();
+    }
+
+    console.log('Organization Teams:', organizationTeams);
+
+    if (!organizationTeams || organizationTeams.length === 0) {
+      console.warn(
+        'No active teams with active bank accounts found for the organization.',
+      );
+      return new BadRequestException(
+        'No active teams with active bank accounts found for the organization.',
       ).getResponse();
     }
 
     const activeTeams = organizationTeams.map((orgTeam) => orgTeam.team);
+
+    console.log('Active Teams:', activeTeams);
+
+    if (activeTeams.length === 0) {
+      console.warn(
+        'No active teams with active bank accounts available after filtering.',
+      );
+      return new BadRequestException(
+        'No active teams with active bank accounts available after filtering.',
+      ).getResponse();
+    }
+
     let selectedBankAccounts = [];
 
     while (activeTeams.length > 0 && selectedBankAccounts.length === 0) {
@@ -163,6 +188,11 @@ export class BankTransferService {
       const randomTeam = activeTeams.splice(randomIndex, 1)[0];
 
       console.log('Random Team:', randomTeam);
+
+      if (!randomTeam) {
+        console.warn('Selected random team is null or undefined.');
+        continue;
+      }
 
       const { data: bankAccounts, error: bankAccountsError } = await client
         .from('bank_accounts')
@@ -209,7 +239,7 @@ export class BankTransferService {
       createVerifyDepositDto.user,
     );
 
-    const { data: bankAccount, error: bankAccountError } = await client
+    const { data: bankAccount } = await client
       .from('bank_accounts')
       .select('team(id), payment_method(id, name, logo)')
       .eq('id', createVerifyDepositDto.bank_account_id)
