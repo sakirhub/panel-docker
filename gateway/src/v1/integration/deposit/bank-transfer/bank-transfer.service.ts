@@ -144,19 +144,25 @@ export class BankTransferService {
         .select('*, team(id, name, status)')
         .eq('organization', role.data.organization.id)
         .eq('team.status', 'active');
+
     if (organizationTeamsError) {
-      return new BadRequestException(
+      console.error(
+        'Organization Teams Error:',
         organizationTeamsError.message,
+      );
+      return new BadRequestException(
+        'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.',
       ).getResponse();
     }
 
     const activeTeams = organizationTeams.map((orgTeam) => orgTeam.team);
-
     let selectedBankAccounts = [];
 
     while (activeTeams.length > 0 && selectedBankAccounts.length === 0) {
       const randomIndex = Math.floor(Math.random() * activeTeams.length);
       const randomTeam = activeTeams.splice(randomIndex, 1)[0];
+
+      console.log('Random Team:', randomTeam);
 
       const { data: bankAccounts, error: bankAccountsError } = await client
         .from('bank_accounts')
@@ -167,9 +173,13 @@ export class BankTransferService {
         .neq('payment_method', '279fbfdb-34c8-41e5-9d9b-54137ad20f8b')
         .neq('payment_method', 'aad2e73d-0a8a-4de4-9841-980567cbf34f')
         .eq('team', randomTeam.id);
+
       if (bankAccountsError) {
+        console.error('Bank Accounts Error:', bankAccountsError.message);
         return new BadRequestException(bankAccountsError.message).getResponse();
       }
+
+      console.log('Bank Accounts:', bankAccounts);
 
       if (bankAccounts.length > 0) {
         selectedBankAccounts = bankAccounts
@@ -179,10 +189,13 @@ export class BankTransferService {
     }
 
     if (selectedBankAccounts.length === 0) {
+      console.warn('No suitable bank accounts found.');
       return new BadRequestException(
         'Uygun banka hesabı bulunamadı',
       ).getResponse();
     }
+
+    console.log('Selected Bank Accounts:', selectedBankAccounts);
 
     return {
       accounts: selectedBankAccounts,
