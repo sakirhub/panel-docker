@@ -177,13 +177,37 @@ export class BankAccountsService {
       frequency_penalty: 0,
       presence_penalty: 0,
     });
+    function normalizeString(str: string) {
+      const charMap = {
+        ç: 'c',
+        ğ: 'g',
+        ı: 'i',
+        ö: 'o',
+        ş: 's',
+        ü: 'u',
+        Ç: 'C',
+        Ğ: 'G',
+        İ: 'I',
+        Ö: 'O',
+        Ş: 'S',
+        Ü: 'U',
+      };
 
+      return str
+        .split('')
+        .map((char) => charMap[char] || char)
+        .join('');
+    }
+
+    const normalizedContent = normalizeString(
+      response.choices[0].message.content.toLowerCase(),
+    );
     const postData = {
       account_id: body.account_id,
       amount: body.amount,
       last_balance: body.last_balance,
       description: body.user_name,
-      sender_name: response.choices[0].message.content,
+      sender_name: normalizedContent,
       transaction_date: body.created_bank,
     };
 
@@ -212,33 +236,6 @@ export class BankAccountsService {
     if (error) {
       throw new Error(`Error inserting data: ${error.message}`);
     }
-
-    function normalizeString(str: string) {
-      const charMap = {
-        ç: 'c',
-        ğ: 'g',
-        ı: 'i',
-        ö: 'o',
-        ş: 's',
-        ü: 'u',
-        Ç: 'C',
-        Ğ: 'G',
-        İ: 'I',
-        Ö: 'O',
-        Ş: 'S',
-        Ü: 'U',
-      };
-
-      return str
-        .split('')
-        .map((char) => charMap[char] || char)
-        .join('');
-    }
-
-    const normalizedContent = normalizeString(
-      response.choices[0].message.content.toLowerCase(),
-    );
-    console.log('Normalized Content:', normalizedContent);
 
     const { data: investmentData } = await client
       .from('investments')
@@ -271,7 +268,6 @@ export class BankAccountsService {
       return 'No investment found';
     }
     filteredInvestmentData = filteredInvestmentData[0];
-    console.log('Filtered Investment Data:', filteredInvestmentData);
     const team_commission = filteredInvestmentData.team.definitions.commission;
     const organization_commission =
       filteredInvestmentData.organization.definitions.commission;

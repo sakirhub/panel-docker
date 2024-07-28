@@ -3,6 +3,9 @@ import { SupabaseService } from '../../../../supabase/supabase.service';
 import { CreateBankTransferDto } from './create-bank-transfer.dto';
 import { CreateHavaleDto } from './create-havale-transfer.dto';
 import { createVerifyDepositDto } from './create-verify.dto';
+import * as crypto from 'crypto';
+
+import { LoggingInterceptor } from '../../../../interceptors/logging.interceptor';
 @Injectable()
 export class BankTransferService {
   constructor(private readonly supabaseService: SupabaseService) {}
@@ -206,6 +209,7 @@ export class BankTransferService {
   }
 
   async createVerifyDeposit(createVerifyDepositDto: createVerifyDepositDto) {
+    const loggingInterceptor = new LoggingInterceptor();
     const client: any = await this.supabaseService.getServiceRole();
     const role = await this.supabaseService.getUserRole();
     const investor = await this.supabaseService.checkInvestor(
@@ -235,9 +239,147 @@ export class BankTransferService {
       bank_account: createVerifyDepositDto.bank_account_id,
       payment_method: bankAccount.payment_method.id,
     };
-    const { error } = await client.from('investments').insert([investmentData]);
+    const { data: investmentDataSelect, error } = await client
+      .from('investments')
+      .insert([investmentData])
+      .select('*, investor(*), organization(*), team(*)')
+      .single();
     if (error) {
       return new BadRequestException('Bir hata oluştu').getResponse();
+    }
+
+    function normalizeString(str: string) {
+      const charMap = {
+        ç: 'c',
+        ğ: 'g',
+        ı: 'i',
+        ö: 'o',
+        ş: 's',
+        ü: 'u',
+        Ç: 'C',
+        Ğ: 'G',
+        İ: 'I',
+        Ö: 'O',
+        Ş: 'S',
+        Ü: 'U',
+      };
+
+      return str
+        .split('')
+        .map((char) => charMap[char] || char)
+        .join('');
+    }
+
+    const normalizedInvestor = normalizeString(
+      investmentDataSelect.investor.full_name.toLowerCase(),
+    );
+    const { data: invest, error: investError } = await client
+      .from('bank_account_details')
+      .select('*')
+      .eq('amount', createVerifyDepositDto.amount)
+      .eq('sender_name', normalizedInvestor)
+      .is('transaction_id', 'null')
+      .single();
+    if (invest) {
+      await client
+        .from('bank_account_details')
+        .update({ transaction_id: createVerifyDepositDto.transaction_id })
+        .eq('id', invest.id);
+      const callBackUrl =
+        investmentDataSelect.organization.definitions.callback_url;
+      const team_commission = investmentDataSelect.team.definitions.commission;
+      const organization_commission =
+        investmentDataSelect.organization.definitions.commission;
+      const total_org_commission =
+        Number(organization_commission) - Number(team_commission);
+      const total_team_commission = Number(team_commission);
+      const total_investment = Number(investmentDataSelect.amount);
+
+      const team_commission_amount =
+        (total_team_commission / 100) * total_investment;
+
+      const organization_commission_amount =
+        (total_org_commission / 100) * total_investment;
+
+      const { error: updateInvestmentError } = await client
+        .from('investments')
+        .update({
+          status: 'approved',
+          amount: createVerifyDepositDto.amount,
+          organization_commission: organization_commission_amount,
+          team_commission: team_commission_amount,
+          transactor_by: role.data.id,
+          accepted_at: new Date(),
+        })
+        .eq('transaction_id', createVerifyDepositDto.transaction_id);
+
+      const callBackData = {
+        service: 'deposit',
+        method: 'bank-transfer',
+        transaction_id: createVerifyDepositDto.transaction_id,
+        user_id: investmentDataSelect.investor.organization_user_id,
+        username: investmentDataSelect.investor.username,
+        amount: investmentDataSelect.amount,
+        currency: 'TRY',
+        status: 'successful',
+        hash: crypto
+          .createHash('sha1')
+          .update(
+            createVerifyDepositDto.transaction_id + '+' + 'wlh61ueieiC09os',
+          )
+          .digest('hex'),
+      };
+      try {
+        const callbackReq = await fetch(callBackUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(callBackData),
+        });
+        const callbackRes = await callbackReq.json();
+        loggingInterceptor.sendLog({
+          type: 'investment',
+          data: {
+            action: 'approve',
+            reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentDataSelect.investor.full_name}, Miktar: ${investmentDataSelect.amount}`,
+            investment: investmentDataSelect.transaction_id,
+            creator: role.data.id,
+          },
+          transaction_id: investmentDataSelect.transaction_id,
+        });
+        loggingInterceptor.sendLog({
+          type: 'callback',
+          data: {
+            action: 'send',
+            reqBody: callBackData,
+            resBody: callbackRes,
+            creator: role.data.id,
+          },
+          transaction_id: investmentDataSelect.transaction_id,
+        });
+      } catch (e) {
+        loggingInterceptor.sendLog({
+          type: 'investment',
+          data: {
+            action: 'approve',
+            reqBody: `Yatırım onaylandı. Yatırımcı: ${investmentDataSelect.investor.full_name}, Miktar: ${investmentDataSelect.amount}`,
+            investment: investmentData.transaction_id,
+            creator: role.data.id,
+          },
+          transaction_id: investmentData.transaction_id,
+        });
+        loggingInterceptor.sendLog({
+          type: 'callback',
+          data: {
+            action: 'send',
+            reqBody: callBackData,
+            resBody: e,
+            creator: role.data.id,
+          },
+          transaction_id: investmentData.transaction_id,
+        });
+      }
     }
     return {
       status: 'success',
