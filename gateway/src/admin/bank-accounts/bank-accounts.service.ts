@@ -306,7 +306,7 @@ export class BankAccountsService {
       username: filteredInvestmentData.investor.username,
       amount: body.amount,
       currency: 'TRY',
-      status: 'success',
+      status: 'successful',
     };
 
     try {
