@@ -201,8 +201,6 @@ export class BankTransferService {
       ).getResponse();
     }
 
-    console.log('Selected Bank Accounts:', selectedBankAccounts);
-
     return {
       accounts: selectedBankAccounts,
     };
@@ -278,6 +276,7 @@ export class BankTransferService {
       .select('*')
       .eq('amount', createVerifyDepositDto.amount)
       .eq('sender_name', normalizedInvestor)
+      .eq('account_id', createVerifyDepositDto.bank_account_id)
       .is('transaction_id', 'null')
       .single();
     if (invest) {
