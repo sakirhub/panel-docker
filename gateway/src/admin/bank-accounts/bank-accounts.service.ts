@@ -7,7 +7,6 @@ import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
 @Injectable()
 export class BankAccountsService {
   constructor(private readonly supabaseService: SupabaseService) {}
-
   async findAll(queryParams: any) {
     const role = await this.supabaseService.getUserRole();
     const client = await this.supabaseService.getServiceRole();
@@ -68,7 +67,6 @@ export class BankAccountsService {
       },
     };
   }
-
   async findAllAuto(queryParams: any) {
     const role = await this.supabaseService.getUserRole();
     const client = await this.supabaseService.getServiceRole();
@@ -129,7 +127,6 @@ export class BankAccountsService {
       },
     };
   }
-
   async create(createBankAccountsDto: CreateBankAccountsDto) {
     const role = await this.supabaseService.getUserRole();
     const client = await this.supabaseService.getServiceRole();
@@ -150,7 +147,6 @@ export class BankAccountsService {
     }
     return { data, message: 'Bank account created successfully' };
   }
-
   async postAccountDetails(body) {
     const loggingInterceptor = new LoggingInterceptor();
     const client = await this.supabaseService.getServiceRole();
@@ -361,7 +357,6 @@ export class BankAccountsService {
       message: 'Yatırım başarıyla onaylandı',
     };
   }
-
   async loginAccount(body) {
     const client = await this.supabaseService.getServiceRole();
     const { data: update, error } = await client
