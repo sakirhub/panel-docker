@@ -168,7 +168,6 @@ export class BankTransferService {
       if (!randomTeam) {
         continue;
       }
-      console.log('Random Team:', randomTeam);
 
       const { data: bankAccounts, error: bankAccountsError } = await client
         .from('bank_accounts')
@@ -184,8 +183,6 @@ export class BankTransferService {
         console.error('Bank Accounts Error:', bankAccountsError.message);
         return new BadRequestException(bankAccountsError.message).getResponse();
       }
-
-      console.log('Bank Accounts:', bankAccounts);
 
       if (bankAccounts.length > 0) {
         selectedBankAccounts = bankAccounts
