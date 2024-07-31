@@ -160,7 +160,7 @@ export class BankAccountsService {
         {
           role: 'system',
           content:
-            'Merhaba sana bunlara benzer veriler vereceğim.\n"MOBIL-HAV-777-Mehmet Samet",\n"EFT-Açıklama Burada-MEHMET SAMET",\n"FAST:13124-süleyman çakır",\n"INT-HVL-Polat Alemdar"\n\nSana bu şekilde veri gönderildiğinde bana sana gönderilmiş olan verideki ad soyadı bulup ingilizce karaktere çevirip yazının tamamını küçük harflere çevirerek bana text olarak geri dönüş yapmanı istiyorum. Geri dönüş yapacağın örnek text verisini aşağıda veriyorum. Bana text harici hiç bir şey yazma. \n\npolat alemdar',
+            'Merhaba sana bunlara benzer veriler vereceğim.\\n\\"MOBIL-HAV-777-AHMET FATİH YILMAZ\\",\\n\\"EFT-Açıklama Burada-MEHMET-UZUN\\",\\n\\"FAST:13124-sevinç erdemir\\",\\n\\"INT-HVL-Yücel Kılıç\\",\\nFAST:ASIM TEZER ASIM TEZER TARAFINDAN AKTARILAN,\\n\\nSana bu şekilde veri gönderildiğinde bana sana gönderilmiş olan verideki ad soyadı bulup ingilizce karaktere çevirip yazının tamamını küçük harflere çevirerek bana text olarak geri dönüş yapmanı istiyorum. Geri dönüş yapacağın örnek text verisini aşağıda veriyorum. Bana text harici hiç bir şey yazma. \\nSadece ismi yaz ve ismi tekrar vs yaptırma. İsmi algıla öyle yaz\\nasim tezer',
         },
         {
           role: 'user',
