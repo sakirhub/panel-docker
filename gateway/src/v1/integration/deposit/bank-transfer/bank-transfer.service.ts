@@ -274,7 +274,7 @@ export class BankTransferService {
       .eq('amount', createVerifyDepositDto.amount)
       .eq('sender_name', normalizedInvestor)
       .eq('account_id', createVerifyDepositDto.bank_account_id)
-      .is('transaction_id', 'null')
+      .eq('transaction_id', null)
       .single();
     if (invest) {
       await client

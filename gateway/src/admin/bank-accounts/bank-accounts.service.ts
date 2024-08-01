@@ -224,10 +224,11 @@ export class BankAccountsService {
       return 'Data already exists';
     }
 
-    const { error } = await client
+    const { data: details, error } = await client
       .from('bank_account_details')
       .insert([postData])
-      .select();
+      .select('*')
+      .single();
 
     if (error) {
       throw new Error(`Error inserting data: ${error.message}`);
@@ -290,6 +291,12 @@ export class BankAccountsService {
         accepted_at: new Date(),
       })
       .eq('transaction_id', filteredInvestmentData.transaction_id);
+    const { error: updateBankAccountError } = await client
+      .from('bank_account_details')
+      .update({
+        transaction_id: filteredInvestmentData.transaction_id,
+      })
+      .eq('id', details.id);
     if (updateInvestmentError) {
       return updateInvestmentError;
     }
