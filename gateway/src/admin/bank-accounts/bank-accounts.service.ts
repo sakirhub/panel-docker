@@ -150,8 +150,16 @@ export class BankAccountsService {
   async postAccountDetails(body) {
     const loggingInterceptor = new LoggingInterceptor();
     const client = await this.supabaseService.getServiceRole();
+    const apiKeys = [
+      process.env.OPENAI_API_KEY,
+      process.env.OPENAI_API_KEY2,
+      process.env.OPENAI_API_KEY3,
+    ];
+
+    const randomKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
+
     const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: randomKey,
     });
 
     const response = await openai.chat.completions.create({
