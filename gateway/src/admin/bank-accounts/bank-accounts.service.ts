@@ -266,7 +266,7 @@ export class BankAccountsService {
         const normalizedInvestorName = normalizeString(
           investment.investor.full_name.toLowerCase(),
         );
-        return normalizedInvestorName === normalizedContent;
+        return normalizedInvestorName == normalizedContent;
       },
     );
     if (filteredInvestmentData.length === 0) {
