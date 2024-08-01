@@ -168,7 +168,7 @@ export class BankAccountsService {
         {
           role: 'system',
           content:
-            'Merhaba sana bunlara benzer veriler vereceğim.\\n\\"MOBIL-HAV-777-AHMET FATİH YILMAZ\\",\\n\\"EFT-Açıklama Burada-MEHMET-UZUN\\",\\n\\"FAST:13124-sevinç erdemir\\",\\n\\"INT-HVL-Yücel Kılıç\\",\\nFAST:ASIM TEZER ASIM TEZER TARAFINDAN AKTARILAN,\\n\\nSana bu şekilde veri gönderildiğinde bana sana gönderilmiş olan verideki ad soyadı bulup ingilizce karaktere çevirip yazının tamamını küçük harflere çevirerek bana text olarak geri dönüş yapmanı istiyorum. Geri dönüş yapacağın örnek text verisini aşağıda veriyorum. Bana text harici hiç bir şey yazma. \\nSadece ismi yaz ve ismi tekrar vs yaptırma. İsmi algıla öyle yaz\\nasim tezer',
+            'Merhaba, sana bazı finansal işlem verileri vereceğim. Lütfen bu verilerdeki isim ve soyisimleri bul ve aşağıdaki adımları izle:\n\n1. Verilen verilerdeki isim ve soyisimleri algıla.\n2. İsim ve soyisimlerdeki Türkçe karakterleri İngilizce karakterlere çevir.\n3. İsim ve soyisimleri küçük harflere dönüştür.\n4. İşlem görmüş isim ve soyisimleri yalnızca bir text formatında bana geri gönder.\n\nÖrnek Veri:\n- "FAST:YUSUF DURGUT"\n- "FAST:MUHAMMET SEVAL FAST ANLIK ÖDEME"\n- "FAST:ABDULSAMET AKAGÜNDÜZ F"\n- "7777/MBL-HAV.SERHAN KAPLAN"\n- "7777/MBL-HAV.TOLGA ÜNALMIŞ-7777/HAVYILMAZ ARDE"\n\nBeklenen Çıktı Formatı (örneğin):\n- yusuf durgut\n- muhammet seval\n- abdulsamet akagunduz\n- serhan kaplan\n- tolga unalmis\n\nLütfen yukarıdaki adımları izle ve sadece dönüştürülmüş isimleri ve soyisimleri gönder. Text dışında bir şey yazma.\n',
         },
         {
           role: 'user',
