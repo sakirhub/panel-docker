@@ -151,7 +151,7 @@ export class BankAccountsService {
     const loggingInterceptor = new LoggingInterceptor();
     const client = await this.supabaseService.getServiceRole();
     const apiKeys = [
-      process.env.OPENAI_API_KEY,
+      //process.env.OPENAI_API_KEY,
       process.env.OPENAI_API_KEY2,
       process.env.OPENAI_API_KEY3,
     ];
