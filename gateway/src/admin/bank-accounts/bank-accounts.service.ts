@@ -388,4 +388,61 @@ export class BankAccountsService {
       .eq('id', body.id);
     return 'success';
   }
+
+  async getAccountDetails(queryParams: any) {
+    const client = await this.supabaseService.getServiceRole();
+    const bank_accounts = client
+      .from('bank_account_details')
+      .select(
+        `
+    *,
+    account_id(*)
+  `,
+      )
+      .eq('account_id', queryParams.id)
+      .order('created_at', { ascending: false });
+
+    if (queryParams?.page) {
+      bank_accounts.range(
+        (queryParams.page - 1) * (queryParams.limit || 20),
+        queryParams.page * (queryParams.limit || 20),
+      );
+    } else {
+      bank_accounts.range(0, queryParams.limit || 20);
+    }
+    if (queryParams?.limit) {
+      bank_accounts.limit(queryParams.limit);
+    } else {
+      bank_accounts.limit(20);
+    }
+    if (queryParams?.team) {
+      bank_accounts.eq('team', queryParams.team);
+    }
+    const { data, error } = await bank_accounts;
+    if (error) {
+      return new BadRequestException(error.message).getResponse();
+    }
+    const count = client.from('bank_account_details').select('id');
+    const { data: countData } = await count;
+    const total_page = Math.ceil(
+      countData?.length / (queryParams?.limit || 20),
+    );
+    return {
+      data,
+      meta: {
+        data_count: countData.length,
+        total_page,
+        current_page: Number(queryParams?.page - 1),
+        limit: Number(queryParams?.limit) || 20,
+        prev_page:
+          Number(queryParams?.page - 1) >= 1
+            ? Number(queryParams.page - 1) - 1
+            : null,
+        next_page:
+          Number(queryParams?.page - 1) < Number(total_page)
+            ? Number(queryParams.page - 1) + 1
+            : null,
+      },
+    };
+  }
 }

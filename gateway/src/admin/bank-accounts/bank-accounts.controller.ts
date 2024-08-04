@@ -37,4 +37,9 @@ export class BankAccountsController {
   async logout(@Body() body: any) {
     return this.bankAccountsService.logoutAccount(body);
   }
+
+  @Get('details')
+  async getDetails(@Query() queryParams: string) {
+    return this.bankAccountsService.getAccountDetails(queryParams);
+  }
 }
