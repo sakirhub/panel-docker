@@ -101,7 +101,7 @@ export class InvestmentsService {
     const investments = client
       .from('investments')
       .select(
-        '*, organization(name), investor(id,name, full_name, organization_user_id), team(name), payment_method(name, logo), bank_account(name, account_number)',
+        '*, organization(name), investor(id,name, full_name, organization_user_id, username), team(name), payment_method(name, logo), bank_account(name, account_number)',
       )
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
