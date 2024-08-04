@@ -14,7 +14,7 @@ export class InvestmentsService {
     const investments = client
       .from('investments')
       .select(
-        '*, organization(name), investor!inner(id,name, full_name, organization_user_id), team(name), payment_method(name, logo), bank_account(name, account_number)',
+        '*, organization(name), investor!inner(id,name, full_name, organization_user_id, username), team(name), payment_method(name, logo), bank_account(name, account_number)',
       )
       .neq('status', 'pending')
       .neq('status', 'transaction_pending')
