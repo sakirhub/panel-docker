@@ -3,6 +3,7 @@ import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateBankAccountsDto } from './create-bank-accounts.dto';
 import OpenAI from 'openai';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class BankAccountsService {
@@ -318,6 +319,10 @@ export class BankAccountsService {
       amount: body.amount,
       currency: 'TRY',
       status: 'successful',
+      hash: crypto
+        .createHash('sha1')
+        .update(filteredInvestmentData.transaction_id + '+' + 'wlh61ueieiC09os')
+        .digest('hex'),
     };
 
     try {
