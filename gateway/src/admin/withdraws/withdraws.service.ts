@@ -33,9 +33,13 @@ export class WithdrawsService {
     if (
       role.role !== 'supervisor' &&
       role.role !== 'admin' &&
-      role.role !== 'ekip'
+      role.role !== 'ekip' &&
+      role.role !== 'organization-admin'
     ) {
       investments.eq('team', role.data.team.id);
+    }
+    if (role.role === 'organization-admin') {
+      investments.eq('organization', role.data.organization.id);
     }
     if (queryParams?.page) {
       investments.range(
@@ -62,7 +66,8 @@ export class WithdrawsService {
     if (
       role.role !== 'supervisor' &&
       role.role !== 'admin' &&
-      role.role !== 'ekip'
+      role.role !== 'ekip' &&
+      role.role !== 'organization-admin'
     ) {
       count.eq('team', role.data.team.id);
     }
@@ -104,9 +109,13 @@ export class WithdrawsService {
     if (
       role.role !== 'supervisor' &&
       role.role !== 'admin' &&
-      role.role !== 'ekip'
+      role.role !== 'ekip' &&
+      role.role !== 'organization-admin'
     ) {
       investments.eq('team', role.data.team.id);
+    }
+    if (role.role === 'organization-admin') {
+      investments.eq('organization', role.data.organization.id);
     }
     if (queryParams?.page) {
       investments.range(
@@ -130,7 +139,8 @@ export class WithdrawsService {
     if (
       role.role !== 'supervisor' &&
       role.role !== 'admin' &&
-      role.role !== 'ekip'
+      role.role !== 'ekip' &&
+      role.role !== 'organization-admin'
     ) {
       count.eq('team', role.data.team.id);
     }
@@ -209,9 +219,7 @@ export class WithdrawsService {
         },
         body: JSON.stringify(callBackData),
       });
-      console.log(callbackReq);
       const callbackRes = (await callbackReq.json()) || {};
-      console.log(callbackRes);
       loggingInterceptor.sendLog({
         type: 'callback',
         data: {

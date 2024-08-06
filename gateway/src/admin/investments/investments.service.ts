@@ -34,12 +34,13 @@ export class InvestmentsService {
     if (
       role.role !== 'supervisor' &&
       role.role !== 'ekip' &&
-      role.role !== 'admin'
+      role.role !== 'admin' &&
+      role.role !== 'organization-admin'
     ) {
       investments.eq('team', role.data.team.id);
     }
-    if (role.role == 'admin') {
-      investments.neq('organization', 'b11d71d1-9c94-416f-86d4-a85940233bf2');
+    if (role.role == 'organization-admin') {
+      investments.eq('organization', role.data.organization.id);
     }
     if (queryParams?.page) {
       investments.range(
@@ -67,7 +68,8 @@ export class InvestmentsService {
     if (
       role.role !== 'supervisor' &&
       role.role !== 'ekip' &&
-      role.role !== 'admin'
+      role.role !== 'admin' &&
+      role.role !== 'organization-admin'
     ) {
       count.eq('team', role.data.team.id);
     }
@@ -109,13 +111,19 @@ export class InvestmentsService {
     if (
       role.role !== 'supervisor' &&
       role.role !== 'admin' &&
-      role.role !== 'ekip'
+      role.role !== 'ekip' &&
+      role.role !== 'organization-admin'
     ) {
       investments.eq('team', role.data.team.id);
     }
     if (role.role == 'admin') {
       investments.neq('organization', 'b11d71d1-9c94-416f-86d4-a85940233bf2');
     }
+
+    if (role.role == 'organization-admin') {
+      investments.eq('organization', role.data.organization.id);
+    }
+
     if (queryParams?.page) {
       investments.range(
         (queryParams.page - 1) * (queryParams.limit || 20),
@@ -141,7 +149,8 @@ export class InvestmentsService {
     if (
       role.role !== 'supervisor' &&
       role.role !== 'admin' &&
-      role.role !== 'ekip'
+      role.role !== 'ekip' &&
+      role.role !== 'organization-admin'
     ) {
       count.eq('team', role.data.team.id);
     }
